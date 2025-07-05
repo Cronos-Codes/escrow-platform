@@ -1,0 +1,248 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function hasRole(role) {
+      return isAuthenticated() && 
+             request.auth.token.role == role;
+    }
+    
+    function hasAnyRole(roles) {
+      return isAuthenticated() && 
+             request.auth.token.role in roles;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && 
+             request.auth.uid == userId;
+    }
+    
+    function isAdmin() {
+      return hasRole('admin') || hasRole('super_admin');
+    }
+    
+    function isRealEstateVerifier() {
+      return hasAnyRole(['admin', 'real_estate_verifier', 'super_admin']);
+    }
+    
+    function isAssayer() {
+      return hasAnyRole(['admin', 'assayer', 'super_admin']);
+    }
+    
+    function isShipmentAdmin() {
+      return hasAnyRole(['admin', 'shipment_admin', 'super_admin']);
+    }
+
+    // User profiles
+    match /users/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow create: if isAuthenticated() && request.auth.uid == userId;
+      allow update: if isOwner(userId) || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // Escrow deals
+    match /deals/{dealId} {
+      allow read: if isAuthenticated() && (
+        resource.data.buyerId == request.auth.uid ||
+        resource.data.sellerId == request.auth.uid ||
+        isAdmin()
+      );
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() && (
+        resource.data.buyerId == request.auth.uid ||
+        resource.data.sellerId == request.auth.uid ||
+        isAdmin()
+      );
+      allow delete: if isAdmin();
+    }
+
+    // Real Estate Adapter
+    match /tokenMappings/{mappingId} {
+      allow read: if isAuthenticated();
+      allow write: if isRealEstateVerifier();
+    }
+    
+    match /tokenizationLogs/{logId} {
+      allow read: if isAuthenticated();
+      allow create: if isRealEstateVerifier();
+      allow update: if isRealEstateVerifier();
+      allow delete: if isAdmin();
+    }
+    
+    match /verifiedProperties/{propertyId} {
+      allow read: if isAuthenticated();
+      allow create: if isRealEstateVerifier();
+      allow update: if isRealEstateVerifier();
+      allow delete: if isAdmin();
+    }
+    
+    match /revokedTokens/{tokenId} {
+      allow read: if isAuthenticated();
+      allow create: if isRealEstateVerifier();
+      allow update: if isRealEstateVerifier();
+      allow delete: if isAdmin();
+    }
+
+    // Precious Metals Adapter
+    match /assayLogs/{logId} {
+      allow read: if isAuthenticated();
+      allow create: if isAssayer();
+      allow update: if isAssayer();
+      allow delete: if isAdmin();
+    }
+    
+    match /verifiedAssays/{assayId} {
+      allow read: if isAuthenticated();
+      allow create: if isAssayer();
+      allow update: if isAssayer();
+      allow delete: if isAdmin();
+    }
+    
+    match /revokedBatches/{batchId} {
+      allow read: if isAuthenticated();
+      allow create: if isAssayer();
+      allow update: if isAssayer();
+      allow delete: if isAdmin();
+    }
+
+    // Oil & Gas Adapter
+    match /shipmentLogs/{logId} {
+      allow read: if isAuthenticated();
+      allow create: if isShipmentAdmin();
+      allow update: if isShipmentAdmin();
+      allow delete: if isAdmin();
+    }
+    
+    match /verifiedDeliveries/{deliveryId} {
+      allow read: if isAuthenticated();
+      allow create: if isShipmentAdmin();
+      allow update: if isShipmentAdmin();
+      allow delete: if isAdmin();
+    }
+    
+    match /frozenFunds/{fundId} {
+      allow read: if isAdmin();
+      allow create: if isShipmentAdmin();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // Oracle Data
+    match /oracleData/{dataId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+    
+    match /oracleLogs/{logId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // Audit Trails
+    match /auditLogs/{logId} {
+      allow read: if isAdmin();
+      allow create: if isAuthenticated();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // System Configuration
+    match /config/{configId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    // Rate Limiting
+    match /rateLimits/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow write: if isAdmin();
+    }
+
+    // Notifications
+    match /notifications/{notificationId} {
+      allow read: if isAuthenticated() && (
+        resource.data.userId == request.auth.uid ||
+        isAdmin()
+      );
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() && (
+        resource.data.userId == request.auth.uid ||
+        isAdmin()
+      );
+      allow delete: if isAdmin();
+    }
+
+    // API Keys (for external integrations)
+    match /apiKeys/{keyId} {
+      allow read: if isAdmin();
+      allow write: if isAdmin();
+    }
+
+    // Webhook Configurations
+    match /webhooks/{webhookId} {
+      allow read: if isAdmin();
+      allow write: if isAdmin();
+    }
+
+    // Backup and Recovery
+    match /backups/{backupId} {
+      allow read: if isAdmin();
+      allow write: if isAdmin();
+    }
+
+    // Compliance and Reporting
+    match /compliance/{reportId} {
+      allow read: if isAdmin();
+      allow write: if isAdmin();
+    }
+
+    // KYC/AML Data
+    match /kyc/{userId} {
+      allow read: if isOwner(userId) || isAdmin();
+      allow create: if isAuthenticated() && request.auth.uid == userId;
+      allow update: if isOwner(userId) || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // Dispute Resolution
+    match /disputes/{disputeId} {
+      allow read: if isAuthenticated() && (
+        resource.data.buyerId == request.auth.uid ||
+        resource.data.sellerId == request.auth.uid ||
+        resource.data.arbitratorId == request.auth.uid ||
+        isAdmin()
+      );
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() && (
+        resource.data.buyerId == request.auth.uid ||
+        resource.data.sellerId == request.auth.uid ||
+        resource.data.arbitratorId == request.auth.uid ||
+        isAdmin()
+      );
+      allow delete: if isAdmin();
+    }
+
+    // Voting and Governance
+    match /votes/{voteId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAuthenticated() && (
+        resource.data.voterId == request.auth.uid ||
+        isAdmin()
+      );
+      allow delete: if isAdmin();
+    }
+
+    // Deny all other access
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+} 

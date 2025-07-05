@@ -1,0 +1,210 @@
+# Cursor AI Enforcement Rules — Absolute Atomic Execution Manifest
+
+```yaml
+# ===================================================================
+# Definitive Execution Manifest for AI-Powered Escrow & Paymaster
+# ===================================================================
+# Audience: Cursor AI (code generation agent)
+# Objective: Enforce maximum atomic discipline, deterministic behavior,
+#            and blueprint-faithful implementation from zero to scale.
+# ===================================================================
+
+rules:
+
+  # ================================================================
+  # 1. PROMPT PRECISION AND EXECUTION FIDELITY
+  # ================================================================
+
+  - id: enforce-surgical-prompt-enhancement
+    description: |
+      Cursor must intercept and enhance every prompt before execution.
+      Enhance 100% of provided prompts by adapting them precisely to:
+        - Current phase and blueprint context
+        - Defined architecture and stack choices
+        - Folder and file structure
+        - Active module and logic boundaries
+      Optimized prompts must be surgical, unambiguous, and directive.
+    severity: error
+
+  - id: detect-and-block-prompt-drift
+    description: |
+      Detect and reject all prompts that:
+        - Violate blueprint logic or scope
+        - Introduce undefined components or flows
+        - Attempt shortcuts (e.g., skip schemas, contract flow, dashboards)
+      Requests that require clarification must be paused and flagged.
+    severity: error
+
+  # ================================================================
+  # 2. FILE SYSTEM INTEGRITY AND STRUCTURE ENFORCEMENT
+  # ================================================================
+
+  - id: disallow-unjustified-component-duplication
+    description: |
+      Never generate a new component, screen, or module if a similar structure
+      exists. Cursor must search and suggest edits/refactors instead.
+    severity: error
+
+  - id: component-consolidation-mandate
+    description: |
+      Minimize fragmentation. If UI logic is <200 lines and scoped, it MUST live
+      in a shared file or atomic directory. Do not scatter logic across multiple
+      files unnecessarily.
+    severity: warning
+
+  - id: directory-hierarchy-lockdown
+    description: |
+      Only use blueprint-specified folders:
+        - apps/web, apps/backend, apps/contracts
+        - packages/core, packages/ui, packages/schemas, packages/auth
+        - .cursorrules/, .cursorcache/
+      No new folders or module scopes unless explicitly approved.
+    severity: error
+
+  # ================================================================
+  # 3. COMPONENT, TYPE, AND FUNCTION RIGIDITY
+  # ================================================================
+
+  - id: atomic-component-isolation
+    description: |
+      Each UI component must:
+        - Serve one purpose only
+        - Accept props via interfaces
+        - Export memoized output when pure
+      No implicit logic or mutation within display components.
+    severity: error
+
+  - id: strict-type-mandate
+    description: |
+      - No 'any', implicit 'unknown', or inferred types allowed
+      - All interfaces and types must be declared in 'packages/schemas'
+      - Types must round-trip with Zod schemas where applicable
+    severity: error
+
+  - id: schema-validation-gatekeeping
+    description: |
+      All API payloads and contract inputs/outputs must pass schema validation.
+      Use Zod everywhere, or JSON schema fallback. Do not bypass with raw object validation.
+    severity: error
+
+  # ================================================================
+  # 4. CONTRACT GOVERNANCE AND FSM PRIMACY
+  # ================================================================
+
+  - id: centralized-state-transitions
+    description: |
+      All escrow/paymaster state updates must use FSM definitions in:
+        'packages/core/fsm.ts'
+      Solidity must only emit events; transitions and permission checks are centralized.
+    severity: error
+
+  - id: contract-auditing-hard-requirements
+    description: |
+      All smart contracts must:
+        - Be tested with Hardhat locally
+        - Be audited via Slither and MythX
+        - Include audit logs and annotations per function
+        - Reject unsafe patterns (unchecked calls, delegatecall, tx.origin)
+    severity: error
+
+  # ================================================================
+  # 5. UI/UX UNIFICATION & VISUAL SYSTEMS
+  # ================================================================
+
+  - id: enforced-design-system
+    description: |
+      UI components must:
+        - Use only Tailwind utility classes
+        - Consume components from 'packages/ui'
+        - Include loading, empty, and error states
+        - Never use inline styles or third-party component libraries unless whitelisted
+    severity: error
+
+  - id: animation-uniformity
+    description: |
+      Use Framer Motion for all animations:
+        - Page entry: fadeIn + slideUp
+        - Modal entry: zoom + blur
+        - Buttons: hover-spring
+        - Skeleton loaders for API-based screens
+      Animations must be accessible and fallback-supported.
+    severity: warning
+
+  - id: ui-context-awareness
+    description: |
+      Cursor must differentiate between:
+        - User dashboard views
+        - Broker-specific logic (deal tracking, dispute flags)
+        - Admin-only features (approvals, KYC overview, gas spend audit)
+      No shared components should contain role-specific conditions inline.
+    severity: error
+
+  # ================================================================
+  # 6. TESTING, COVERAGE, AND QUALITY BARRIERS
+  # ================================================================
+
+  - id: 100pc-functional-test-coverage
+    description: |
+      Every exposed function, screen, component, and API endpoint must:
+        - Have corresponding unit or integration test
+        - Be measured with Jest or Vitest + coverage thresholds
+        - Use mocks, fixtures, and auth contexts correctly
+      Smart contracts must use Foundry for both logic and gas profiling.
+    severity: error
+
+  - id: failure-path-tests-mandate
+    description: |
+      Include at least 1 test for every failure or rejection condition:
+        - Escrow deadline breach
+        - Invalid signature
+        - Unverified wallet or KYC block
+        - Mismatched dispute terms
+    severity: error
+
+  # ================================================================
+  # 7. SECURITY, COMPLIANCE, AND SECRETS CONTROL
+  # ================================================================
+
+  - id: kyc-aml-gatekeeper
+    description: |
+      All user and organization roles (buyer, seller, broker, admin) must pass
+      onboarding flow defined in 'packages/auth':
+        - Phone OTP
+        - Identity document upload (if required)
+        - Wallet + fiat payment method link
+        - Smart contract interaction whitelisting
+    severity: error
+
+  - id: secret-and-token-hygiene
+    description: |
+      Secrets must be accessed through process.env only and stored in .env
+      All configs must be validated on app boot. Rotate API keys quarterly.
+      Do not use embedded Firebase or backend keys in frontend.
+    severity: error
+
+  # ================================================================
+  # 8. LOGGING, MONITORING, AND INCIDENT CONTROL
+  # ================================================================
+
+  - id: full-observability-spectrum
+    description: |
+      - Backend metrics exposed in Prometheus format
+      - Frontend metrics sent to Sentry and/or LogRocket
+      - Gas cost metrics emitted from smart contracts
+      - Alerts must trigger on SLA breaches, dispute frequency, and auth failure rates
+    severity: warning
+
+  - id: structured-event-logging
+    description: |
+      All log events must include JSON metadata:
+        - userId, dealId, role, timestamp, location (module)
+        - Error stack if applicable
+      Disable browser console logging in production builds
+    severity: warning
+
+lockedFiles:
+  - path: "packages/core/engine.ts"
+  - path: "apps/contracts/contracts/Escrow.sol"
+  - path: ".cursorrules/config.yaml"
+```
+

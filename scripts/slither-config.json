@@ -1,0 +1,28 @@
+{
+  "detectors_to_exclude": [
+    "assembly",
+    "unused-return",
+    "low-level-calls",
+    "missing-inheritance"
+  ],
+  "exclude_informational": false,
+  "exclude_low": false,
+  "exclude_medium": false,
+  "exclude_high": false,
+  "json": "artifacts/security/slither-report.json",
+  "sarif": "artifacts/security/slither-report.sarif",
+  "printers": [
+    "human-summary",
+    "human-summary-compact",
+    "json",
+    "sarif"
+  ],
+  "disable_color": false,
+  "filter_paths": [],
+  "hardhat_ignore_compile": false,
+  "ignore_compile": false,
+  "npx_disable": false,
+  "skip_assembly": false,
+  "triage": false,
+  "zip": "artifacts/security/slither-report.zip"
+} 

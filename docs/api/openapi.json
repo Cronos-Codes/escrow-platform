@@ -1,0 +1,684 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Escrow Platform API",
+    "description": "API documentation for the Escrow platform including authentication, escrow management, dispute resolution, and industry adapters.",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Escrow Platform Support",
+      "email": "support@escrowplatform.com"
+    },
+    "license": {
+      "name": "MIT",
+      "url": "https://opensource.org/licenses/MIT"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://api.escrowplatform.com",
+      "description": "Production server"
+    },
+    {
+      "url": "https://staging-api.escrowplatform.com",
+      "description": "Staging server"
+    },
+    {
+      "url": "http://localhost:5001",
+      "description": "Local development server"
+    }
+  ],
+  "paths": {
+    "/auth/loginPhone": {
+      "post": {
+        "summary": "Send OTP to phone number",
+        "description": "Initiates phone number authentication by sending an OTP code",
+        "tags": ["Authentication"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PhoneOtpRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OTP sent successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid phone number format",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/verifyPhoneOtp": {
+      "post": {
+        "summary": "Verify phone OTP",
+        "description": "Verifies the OTP code and returns authentication token",
+        "tags": ["Authentication"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PhoneOtpVerification"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OTP verified successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid OTP code",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/loginEmail": {
+      "post": {
+        "summary": "Send email authentication link",
+        "description": "Initiates email authentication by sending a secure link",
+        "tags": ["Authentication"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmailOtpRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Email link sent successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/verifyEmailOtp": {
+      "post": {
+        "summary": "Verify email OTP",
+        "description": "Verifies the email OTP code and returns authentication token",
+        "tags": ["Authentication"],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EmailOtpVerification"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Email OTP verified successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/escrow/create": {
+      "post": {
+        "summary": "Create escrow deal",
+        "description": "Creates a new escrow deal between buyer and seller",
+        "tags": ["Escrow"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EscrowDeal"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Deal created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DealResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/escrow/fund/{dealId}": {
+      "post": {
+        "summary": "Fund escrow deal",
+        "description": "Funds an escrow deal with the specified amount",
+        "tags": ["Escrow"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dealId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FundRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Deal funded successfully"
+          }
+        }
+      }
+    },
+    "/escrow/approve/{dealId}": {
+      "post": {
+        "summary": "Approve escrow deal",
+        "description": "Approves an escrow deal by the seller",
+        "tags": ["Escrow"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dealId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Deal approved successfully"
+          }
+        }
+      }
+    },
+    "/escrow/release/{dealId}": {
+      "post": {
+        "summary": "Release funds",
+        "description": "Releases funds from escrow to the seller",
+        "tags": ["Escrow"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "dealId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Funds released successfully"
+          }
+        }
+      }
+    },
+    "/disputes/create": {
+      "post": {
+        "summary": "Create dispute",
+        "description": "Creates a new dispute for an escrow deal",
+        "tags": ["Disputes"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DisputeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Dispute created successfully"
+          }
+        }
+      }
+    },
+    "/disputes/{disputeId}/vote": {
+      "post": {
+        "summary": "Vote on dispute",
+        "description": "Submits a vote on a dispute resolution",
+        "tags": ["Disputes"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "disputeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/VoteRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Vote submitted successfully"
+          }
+        }
+      }
+    },
+    "/paymaster/sponsor": {
+      "post": {
+        "summary": "Sponsor gas fees",
+        "description": "Sponsors gas fees for a transaction",
+        "tags": ["Paymaster"],
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SponsorRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Gas fees sponsored successfully"
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "summary": "Health check",
+        "description": "Returns the health status of the API",
+        "tags": ["System"],
+        "responses": {
+          "200": {
+            "description": "API is healthy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "PhoneOtpRequest": {
+        "type": "object",
+        "required": ["phoneNumber"],
+        "properties": {
+          "phoneNumber": {
+            "type": "string",
+            "pattern": "^\\+?[1-9]\\d{1,14}$",
+            "description": "Phone number in E.164 format"
+          }
+        }
+      },
+      "PhoneOtpVerification": {
+        "type": "object",
+        "required": ["phoneNumber", "otpCode"],
+        "properties": {
+          "phoneNumber": {
+            "type": "string",
+            "pattern": "^\\+?[1-9]\\d{1,14}$"
+          },
+          "otpCode": {
+            "type": "string",
+            "pattern": "^\\d{6}$",
+            "description": "6-digit OTP code"
+          }
+        }
+      },
+      "EmailOtpRequest": {
+        "type": "object",
+        "required": ["email"],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          }
+        }
+      },
+      "EmailOtpVerification": {
+        "type": "object",
+        "required": ["email", "otpCode"],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "otpCode": {
+            "type": "string",
+            "pattern": "^\\d{6}$"
+          }
+        }
+      },
+      "ApiResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object"
+          },
+          "error": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      },
+      "AuthResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "token": {
+                "type": "string"
+              },
+              "user": {
+                "$ref": "#/components/schemas/User"
+              }
+            }
+          }
+        }
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "phone": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "role": {
+            "type": "string",
+            "enum": ["buyer", "seller", "admin", "arbitrator"]
+          },
+          "kycStatus": {
+            "type": "string",
+            "enum": ["pending", "approved", "rejected"]
+          },
+          "createdAt": {
+            "type": "number"
+          },
+          "updatedAt": {
+            "type": "number"
+          }
+        }
+      },
+      "EscrowDeal": {
+        "type": "object",
+        "required": ["title", "amount", "sellerAddress"],
+        "properties": {
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 200
+          },
+          "description": {
+            "type": "string",
+            "maxLength": 1000
+          },
+          "amount": {
+            "type": "string",
+            "pattern": "^\\d+(\\.\\d{1,18})?$"
+          },
+          "currency": {
+            "type": "string",
+            "enum": ["USDC", "USDT", "ETH", "MATIC"]
+          },
+          "sellerAddress": {
+            "type": "string",
+            "pattern": "^0x[a-fA-F0-9]{40}$"
+          },
+          "industryAdapter": {
+            "type": "string",
+            "enum": ["real-estate", "precious-metals", "oil-gas"]
+          }
+        }
+      },
+      "DealResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "dealId": {
+                "type": "string"
+              },
+              "status": {
+                "type": "string",
+                "enum": ["created", "funded", "approved", "released", "disputed"]
+              }
+            }
+          }
+        }
+      },
+      "FundRequest": {
+        "type": "object",
+        "required": ["amount"],
+        "properties": {
+          "amount": {
+            "type": "string",
+            "pattern": "^\\d+(\\.\\d{1,18})?$"
+          }
+        }
+      },
+      "DisputeRequest": {
+        "type": "object",
+        "required": ["dealId", "reason"],
+        "properties": {
+          "dealId": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 500
+          },
+          "evidence": {
+            "type": "string",
+            "maxLength": 2000
+          }
+        }
+      },
+      "VoteRequest": {
+        "type": "object",
+        "required": ["vote", "reason"],
+        "properties": {
+          "vote": {
+            "type": "string",
+            "enum": ["buyer", "seller"]
+          },
+          "reason": {
+            "type": "string",
+            "maxLength": 500
+          }
+        }
+      },
+      "SponsorRequest": {
+        "type": "object",
+        "required": ["transaction"],
+        "properties": {
+          "transaction": {
+            "type": "object"
+          }
+        }
+      },
+      "HealthResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": ["healthy", "degraded", "unhealthy"]
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "version": {
+            "type": "string"
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false
+          },
+          "error": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Authentication",
+      "description": "User authentication and authorization endpoints"
+    },
+    {
+      "name": "Escrow",
+      "description": "Escrow deal management endpoints"
+    },
+    {
+      "name": "Disputes",
+      "description": "Dispute resolution and arbitration endpoints"
+    },
+    {
+      "name": "Paymaster",
+      "description": "Gas fee sponsorship endpoints"
+    },
+    {
+      "name": "System",
+      "description": "System health and monitoring endpoints"
+    }
+  ]
+} 
