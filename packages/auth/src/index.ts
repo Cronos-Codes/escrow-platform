@@ -53,7 +53,7 @@ export { useOAuthLogin } from './useOAuthLogin';
 export { UserRole, hasRole, hasPermission, getRolePermissions } from './roleUtils';
 
 // Firebase configuration
-export { auth, firebaseConfig } from './firebase-config';
+export { auth, db, firebaseConfig } from './firebase-config';
 
 // Types
 export type { 
