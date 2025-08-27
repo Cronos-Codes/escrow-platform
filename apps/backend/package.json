@@ -1,0 +1,36 @@
+{
+  "name": "@escrow/backend",
+  "version": "1.0.0",
+  "description": "Firebase Functions backend for escrow platform",
+  "private": true,
+  "scripts": {
+    "build": "tsc",
+    "dev": "firebase emulators:start --only functions",
+    "start": "firebase serve --only functions",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log",
+    "test": "vitest",
+    "lint": "eslint src/**/*.ts",
+    "type-check": "tsc --noEmit"
+  },
+  "main": "lib/index.js",
+  "dependencies": {
+    "firebase-functions": "^4.5.0",
+    "firebase-admin": "^11.11.0",
+    "@escrow/schemas": "workspace:*",
+    "@escrow/paymaster": "workspace:*",
+    "@escrow/core": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "vitest": "^0.34.0",
+    "@types/node": "^20.0.0",
+    "eslint": "^8.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.0.0",
+    "@typescript-eslint/parser": "^6.0.0",
+    "firebase-functions-test": "^3.1.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "name": "@escrow/paymaster",
+  "version": "1.0.0",
+  "description": "Paymaster and gas sponsoring services for escrow platform",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "vitest",
+    "lint": "eslint src/**/*.ts"
+  },
+  "dependencies": {
+    "@escrow/schemas": "workspace:*",
+    "@escrow/core": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "vitest": "^0.34.0",
+    "@types/node": "^20.0.0"
+  }
+}

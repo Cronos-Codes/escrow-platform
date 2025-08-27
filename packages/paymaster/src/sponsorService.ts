@@ -13,7 +13,7 @@ import {
   writeBatch,
   onSnapshot
 } from 'firebase/firestore';
-import { db } from '@escrow/auth/firebase-config';
+import { db } from '@escrow/auth';
 
 // ============ Zod Schemas ============
 
