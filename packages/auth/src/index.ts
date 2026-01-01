@@ -34,6 +34,7 @@ export class AuthService {
 }
 
 // Core auth hooks
+export { useAuth } from './useAuth';
 export { usePhoneOtp } from './usePhoneOtp';
 export { useEmailOtp } from './useEmailOtp';
 export { useWalletLogin } from './useWalletLogin';
@@ -41,19 +42,36 @@ export { useLogout } from './useLogout';
 export { useTokenRefresh } from './useTokenRefresh';
 export { useEmailVerification } from './useEmailVerification';
 export { useOtpResend } from './useOtpResend';
+export { useVerificationStatus } from './useVerificationStatus';
 
-// Multi-factor and device trust (stubs)
+// Credential linking
+export { useCredentialLinking } from './useCredentialLinking';
+export { useCredentialRemoval } from './useCredentialRemoval';
+export * from './credentialLinking';
+export * from './credentialRemoval';
+
+// Utilities
+export * from './utils/debounce';
+export * from './utils/rateLimiter';
+export * from './utils/auditLogger';
+
+// Multi-factor and device trust
 export { useTotpSetup } from './useTotpSetup';
 export { useTrustedDevices } from './useTrustedDevices';
+export { useTwoFactorAuth } from './useTwoFactorAuth';
+export { useBiometricAuth } from './useBiometricAuth';
+
+// Multi-path login
+export * from './multiPathLogin';
 
 // OAuth and SSO (stubs)
 export { useOAuthLogin } from './useOAuthLogin';
 
 // Role utilities
-export { UserRole, hasRole, hasPermission, getRolePermissions } from './roleUtils';
+export { UserRole, hasRole, hasPermission, getUserPermissions } from './roleUtils';
 
 // Firebase configuration
-export { auth, firebaseConfig } from './firebase-config';
+export { auth, db } from './firebase-config';
 
 // Types
 export type { 
@@ -67,6 +85,8 @@ export type {
   TokenRefreshResult,
   EmailVerificationState,
   EmailVerificationResult,
+  VerificationStatus,
+  UseVerificationStatusResult,
   OtpResendState,
   OtpResendResult,
   TotpSetupState,

@@ -1,5 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import { Assay, METAL_PURITY_THRESHOLDS } from '@escrow/schemas';
+// import { Assay, METAL_PURITY_THRESHOLDS } from '@escrow/schemas';
+
+// Temporary local types until schemas package is properly linked
+type Assay = {
+  batchId: string;
+  metalType: 'gold' | 'silver' | 'platinum' | 'palladium' | 'rhodium';
+  purity: number;
+  weight: number;
+  assayer: string;
+  certificateUri: string;
+  origin: string;
+  timestamp: string;
+  verified: boolean;
+};
+
+const METAL_PURITY_THRESHOLDS = {
+  gold: 99.9,
+  silver: 99.9,
+  platinum: 99.95,
+  palladium: 99.95,
+  rhodium: 99.9,
+} as const;
 
 interface AssayVerifierProps {
   onVerify?: (batchId: string) => Promise<boolean>;

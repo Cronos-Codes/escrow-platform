@@ -17,6 +17,10 @@
     "baseUrl": ".",
     "paths": {
       "@escrow/*": ["packages/*/src"],
+      "@ui/*": ["packages/ui/src/*"],
+      "@core/*": ["packages/core/src/*"],
+      "@schemas/*": ["packages/schemas/src/*"],
+      "@auth/*": ["packages/auth/src/*"],
       "@/*": ["apps/frontend/src/*"]
     }
   },

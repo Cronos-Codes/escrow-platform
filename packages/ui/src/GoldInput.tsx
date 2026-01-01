@@ -27,7 +27,7 @@ const GoldInput: React.FC<GoldInputProps> = ({
   className = '',
   autoFocus = false,
 }) => {
-  const { theme } = useTheme();
+  const theme = useTheme();
   const [isFocused, setIsFocused] = useState(false);
   const [hasValue, setHasValue] = useState(!!value);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -66,10 +66,7 @@ const GoldInput: React.FC<GoldInputProps> = ({
         ? 'border-gold' 
         : 'border-gray-300'
     }
-    ${theme === 'dark' 
-      ? 'text-white placeholder-gray-400' 
-      : 'text-black placeholder-gray-500'
-    }
+    text-black placeholder-gray-500
   `;
 
   const labelClasses = `
@@ -78,7 +75,7 @@ const GoldInput: React.FC<GoldInputProps> = ({
       ? 'text-xs text-gold -top-2 bg-white px-2' 
       : 'text-base text-gray-500 top-3'
     }
-    ${theme === 'dark' && (isFocused || hasValue) ? 'bg-black' : ''}
+
   `;
 
   const inputVariants = {

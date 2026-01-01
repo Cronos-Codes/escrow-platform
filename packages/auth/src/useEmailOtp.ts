@@ -5,8 +5,8 @@ import {
   signInWithEmailLink,
   UserCredential 
 } from 'firebase/auth';
+import type { FirebaseError } from 'firebase/app';
 import { auth } from './firebase-config';
-import { emailOtpSchema } from '@escrow/schemas';
 
 export interface EmailOtpState {
   loading: boolean;
@@ -39,13 +39,29 @@ export const useEmailOtp = (): EmailOtpResult => {
     });
   }, []);
 
+  const mapSendEmailError = (error: unknown): string => {
+    const fallback = 'Failed to send email link';
+    const err = error as Partial<FirebaseError> | undefined;
+    const code = (err && 'code' in err ? (err as any).code : undefined) as string | undefined;
+    switch (code) {
+      case 'auth/invalid-email':
+        return 'Please enter a valid email address';
+      case 'auth/too-many-requests':
+        return 'Too many login attempts. Please try again later';
+      case 'auth/missing-email':
+        return 'Email address is required';
+      default:
+        return err && typeof (err as any).message === 'string' ? (err as any).message : fallback;
+    }
+  };
+
   const sendEmailLink = useCallback(async (email: string) => {
     try {
       setState(prev => ({ ...prev, loading: true, error: null }));
 
-      // Validate email format
-      const validation = emailOtpSchema.pick({ email: true }).safeParse({ email });
-      if (!validation.success) {
+      // Basic email validation (avoid cross-package runtime deps)
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
         throw new Error('Invalid email format');
       }
 
@@ -71,10 +87,27 @@ export const useEmailOtp = (): EmailOtpResult => {
       setState(prev => ({
         ...prev,
         loading: false,
-        error: error instanceof Error ? error.message : 'Failed to send email link',
+        error: mapSendEmailError(error),
       }));
     }
   }, []);
+
+  const mapVerifyEmailError = (error: unknown): string => {
+    const fallback = 'Failed to verify email link';
+    const err = error as Partial<FirebaseError> | undefined;
+    const code = (err && 'code' in err ? (err as any).code : undefined) as string | undefined;
+    switch (code) {
+      case 'auth/invalid-email':
+        return 'Please enter a valid email address';
+      case 'auth/invalid-action-code':
+      case 'auth/expired-action-code':
+        return 'Invalid or expired sign-in link';
+      case 'auth/user-disabled':
+        return 'This account has been disabled';
+      default:
+        return err && typeof (err as any).message === 'string' ? (err as any).message : fallback;
+    }
+  };
 
   const verifyEmailLink = useCallback(async (): Promise<UserCredential | null> => {
     try {
@@ -107,7 +140,7 @@ export const useEmailOtp = (): EmailOtpResult => {
       setState(prev => ({
         ...prev,
         loading: false,
-        error: error instanceof Error ? error.message : 'Failed to verify email link',
+        error: mapVerifyEmailError(error),
       }));
       return null;
     }

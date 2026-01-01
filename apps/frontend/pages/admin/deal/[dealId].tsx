@@ -2,13 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { NextPage } from 'next';
 import { useRouter } from 'next/router';
 import { motion } from 'framer-motion';
-import { Card } from '../../../../packages/ui/src/Card';
-import { Badge } from '../../../../packages/ui/src/Badge';
-import { Button } from '../../../../packages/ui/src/Button';
+import Layout from '../../../components/shared/Layout';
+import { Card } from '@ui/Card';
+import { Badge } from '@ui/Badge';
+import { Button } from '@ui/Button';
 import { useGetDeal } from '../../../hooks/useEscrow';
-import { useAuth } from '../../../../packages/auth/src';
-import { EscrowState, getStateDescription } from '../../../../packages/core/src/fsm';
-import { DealResponse } from '../../../../packages/schemas/src/escrow';
+import { useAuth } from '@auth/src';
+import { EscrowState, getStateDescription } from '@core/src/fsm';
+import { DealResponse } from '@schemas/src/escrow';
 
 const AdminDealDetailPage: NextPage = () => {
   const router = useRouter();
@@ -126,7 +127,7 @@ const AdminDealDetailPage: NextPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <Layout>
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
@@ -382,7 +383,7 @@ const AdminDealDetailPage: NextPage = () => {
           </div>
         </div>
       </div>
-    </div>
+    </Layout>
   );
 };
 

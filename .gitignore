@@ -3,7 +3,8 @@ node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-pnpm-debug.log*
+yarn.lock
+.pnpm-debug.log*
 
 # Environment variables
 .env
@@ -57,6 +58,13 @@ jspm_packages/
 
 # Optional npm cache directory
 .npm
+
+# Yarn cache
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
 
 # Optional eslint cache
 .eslintcache
@@ -119,3 +127,6 @@ coverage/
 .env.development.local
 .env.test.local
 .env.production.local 
+# Large media and archives
+BGMedia/
+apps.zip

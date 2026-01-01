@@ -1,11 +1,11 @@
 import * as functions from 'firebase-functions';
 import { getFirestore } from 'firebase-admin/firestore';
 import { ethers } from 'ethers';
-import { 
-  transition, 
-  EscrowState, 
-  EscrowEvent, 
-  EscrowFSMError 
+import {
+  transition,
+  EscrowState,
+  EscrowEvent,
+  EscrowFSMError
 } from '../../../packages/core/src/fsm';
 import {
   CreateDealSchema,
@@ -24,6 +24,13 @@ import {
   type DealFilter
 } from '../../../packages/schemas/src/escrow';
 import { logFSMEvent } from './fsmLogger';
+import { rateLimiter } from './utils/rateLimiter';
+import { logger } from './utils/logger';
+import {
+  sanitizeText,
+  addressesMatch,
+  escrowRateLimits
+} from './utils/security';
 
 const db = getFirestore();
 
@@ -70,12 +77,34 @@ function getEscrowContract(contractAddress: string) {
  */
 export const createDealFn = functions.https.onCall(async (data: CreateDealInput, context) => {
   try {
-    // Validate input
-    const validatedData = CreateDealSchema.parse(data);
-    
-    // Check authentication
+    // Check authentication first
     if (!context.auth) {
       throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
+    }
+
+    // Rate limiting
+    const isLimited = await rateLimiter.isRateLimited(
+      context.auth.uid,
+      'createDeal',
+      escrowRateLimits.createDeal
+    );
+    if (isLimited) {
+      await logger.log({
+        action: 'rate_limit_exceeded',
+        status: 'error',
+        module: 'escrow',
+        userId: context.auth.uid,
+        metadata: { function: 'createDealFn' }
+      });
+      throw new functions.https.HttpsError('resource-exhausted', 'Rate limit exceeded. Please try again later.');
+    }
+
+    // Validate input
+    const validatedData = CreateDealSchema.parse(data);
+
+    // Sanitize text fields
+    if (validatedData.metadata) {
+      validatedData.metadata = sanitizeText(validatedData.metadata);
     }
 
     // Check if user has creator role
@@ -107,7 +136,7 @@ export const createDealFn = functions.https.onCall(async (data: CreateDealInput,
     );
 
     const receipt = await tx.wait();
-    
+
     // Extract deal ID from event
     const dealCreatedEvent = receipt.logs.find(log => {
       try {
@@ -162,11 +191,11 @@ export const createDealFn = functions.https.onCall(async (data: CreateDealInput,
 
   } catch (error) {
     console.error('createDealFn error:', error);
-    
+
     if (error instanceof functions.https.HttpsError) {
       throw error;
     }
-    
+
     if (error instanceof EscrowFSMError) {
       throw new functions.https.HttpsError('invalid-argument', error.message);
     }
@@ -180,13 +209,23 @@ export const createDealFn = functions.https.onCall(async (data: CreateDealInput,
  */
 export const fundDealFn = functions.https.onCall(async (data: FundDealInput, context) => {
   try {
-    // Validate input
-    const validatedData = FundDealSchema.parse(data);
-    
-    // Check authentication
+    // Check authentication first
     if (!context.auth) {
       throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
     }
+
+    // Rate limiting
+    const isLimited = await rateLimiter.isRateLimited(
+      context.auth.uid,
+      'fundDeal',
+      escrowRateLimits.fundDeal
+    );
+    if (isLimited) {
+      throw new functions.https.HttpsError('resource-exhausted', 'Rate limit exceeded. Please try again later.');
+    }
+
+    // Validate input
+    const validatedData = FundDealSchema.parse(data);
 
     // Get deal from Firestore
     const dealDoc = await db.collection('deals').doc(validatedData.dealId).get();
@@ -204,9 +243,27 @@ export const fundDealFn = functions.https.onCall(async (data: FundDealInput, con
       throw new functions.https.HttpsError('failed-precondition', 'Deal is not in Created state');
     }
 
-    // Check if user is the payer
-    if (dealData.payer !== context.auth.uid) {
-      throw new functions.https.HttpsError('permission-denied', 'Only payer can fund the deal');
+    // Get user's wallet address to compare with payer
+    const userDoc = await db.collection('users').doc(context.auth.uid).get();
+    const userData = userDoc.data();
+    const userWalletAddress = userData?.walletAddress;
+
+    // Check if user is the payer (compare wallet addresses, not Firebase UID)
+    if (!addressesMatch(dealData.payer, userWalletAddress)) {
+      await logger.log({
+        action: 'authorization_denied',
+        status: 'error',
+        module: 'escrow',
+        userId: context.auth.uid,
+        metadata: {
+          function: 'fundDealFn',
+          dealId: validatedData.dealId,
+          reason: 'User wallet address does not match payer address',
+          expectedPayer: dealData.payer,
+          userWallet: userWalletAddress || 'not_set'
+        }
+      });
+      throw new functions.https.HttpsError('permission-denied', 'Only the payer can fund the deal');
     }
 
     const contract = getEscrowContract(dealData.contractAddress);
@@ -220,7 +277,7 @@ export const fundDealFn = functions.https.onCall(async (data: FundDealInput, con
         ['function transferFrom(address,address,uint256)'],
         contract.signer
       );
-      
+
       tx = await tokenContract.transferFrom(
         context.auth.uid,
         dealData.contractAddress,
@@ -264,11 +321,11 @@ export const fundDealFn = functions.https.onCall(async (data: FundDealInput, con
 
   } catch (error) {
     console.error('fundDealFn error:', error);
-    
+
     if (error instanceof functions.https.HttpsError) {
       throw error;
     }
-    
+
     if (error instanceof EscrowFSMError) {
       throw new functions.https.HttpsError('invalid-argument', error.message);
     }
@@ -284,7 +341,7 @@ export const approveMilestoneFn = functions.https.onCall(async (data: ApproveMil
   try {
     // Validate input
     const validatedData = ApproveMilestoneSchema.parse(data);
-    
+
     // Check authentication
     if (!context.auth) {
       throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
@@ -341,7 +398,7 @@ export const approveMilestoneFn = functions.https.onCall(async (data: ApproveMil
       prevState: EscrowState.Funded,
       event: EscrowEvent.Approve,
       newState,
-      metadata: { 
+      metadata: {
         txHash: receipt.hash,
         reason: validatedData.reason
       }
@@ -356,11 +413,11 @@ export const approveMilestoneFn = functions.https.onCall(async (data: ApproveMil
 
   } catch (error) {
     console.error('approveMilestoneFn error:', error);
-    
+
     if (error instanceof functions.https.HttpsError) {
       throw error;
     }
-    
+
     if (error instanceof EscrowFSMError) {
       throw new functions.https.HttpsError('invalid-argument', error.message);
     }
@@ -376,7 +433,7 @@ export const releaseFundsFn = functions.https.onCall(async (data: ReleaseFundsIn
   try {
     // Validate input
     const validatedData = ReleaseFundsSchema.parse(data);
-    
+
     // Check authentication
     if (!context.auth) {
       throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
@@ -433,7 +490,7 @@ export const releaseFundsFn = functions.https.onCall(async (data: ReleaseFundsIn
       prevState: EscrowState.Approved,
       event: EscrowEvent.Release,
       newState,
-      metadata: { 
+      metadata: {
         txHash: receipt.hash,
         reason: validatedData.reason
       }
@@ -448,11 +505,11 @@ export const releaseFundsFn = functions.https.onCall(async (data: ReleaseFundsIn
 
   } catch (error) {
     console.error('releaseFundsFn error:', error);
-    
+
     if (error instanceof functions.https.HttpsError) {
       throw error;
     }
-    
+
     if (error instanceof EscrowFSMError) {
       throw new functions.https.HttpsError('invalid-argument', error.message);
     }
@@ -468,7 +525,7 @@ export const raiseDisputeFn = functions.https.onCall(async (data: RaiseDisputeIn
   try {
     // Validate input
     const validatedData = RaiseDisputeSchema.parse(data);
-    
+
     // Check authentication
     if (!context.auth) {
       throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
@@ -520,7 +577,7 @@ export const raiseDisputeFn = functions.https.onCall(async (data: RaiseDisputeIn
       prevState: dealData.state,
       event: EscrowEvent.Dispute,
       newState,
-      metadata: { 
+      metadata: {
         txHash: receipt.hash,
         reason: validatedData.reason,
         evidence: validatedData.evidence
@@ -536,11 +593,11 @@ export const raiseDisputeFn = functions.https.onCall(async (data: RaiseDisputeIn
 
   } catch (error) {
     console.error('raiseDisputeFn error:', error);
-    
+
     if (error instanceof functions.https.HttpsError) {
       throw error;
     }
-    
+
     if (error instanceof EscrowFSMError) {
       throw new functions.https.HttpsError('invalid-argument', error.message);
     }
@@ -556,7 +613,7 @@ export const cancelDealFn = functions.https.onCall(async (data: CancelDealInput,
   try {
     // Validate input
     const validatedData = CancelDealSchema.parse(data);
-    
+
     // Check authentication
     if (!context.auth) {
       throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
@@ -613,7 +670,7 @@ export const cancelDealFn = functions.https.onCall(async (data: CancelDealInput,
       prevState: dealData.state,
       event: EscrowEvent.Cancel,
       newState,
-      metadata: { 
+      metadata: {
         txHash: receipt.hash,
         reason: validatedData.reason
       }
@@ -628,11 +685,11 @@ export const cancelDealFn = functions.https.onCall(async (data: CancelDealInput,
 
   } catch (error) {
     console.error('cancelDealFn error:', error);
-    
+
     if (error instanceof functions.https.HttpsError) {
       throw error;
     }
-    
+
     if (error instanceof EscrowFSMError) {
       throw new functions.https.HttpsError('invalid-argument', error.message);
     }
@@ -648,7 +705,7 @@ export const getDealsFn = functions.https.onCall(async (data: DealFilter, contex
   try {
     // Validate input
     const validatedData = DealFilterSchema.parse(data);
-    
+
     // Check authentication
     if (!context.auth) {
       throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
@@ -697,7 +754,7 @@ export const getDealsFn = functions.https.onCall(async (data: DealFilter, contex
 
   } catch (error) {
     console.error('getDealsFn error:', error);
-    
+
     if (error instanceof functions.https.HttpsError) {
       throw error;
     }
@@ -745,7 +802,7 @@ export const getDealFn = functions.https.onCall(async (dealId: string, context) 
 
   } catch (error) {
     console.error('getDealFn error:', error);
-    
+
     if (error instanceof functions.https.HttpsError) {
       throw error;
     }

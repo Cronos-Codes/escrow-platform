@@ -11,6 +11,7 @@ interface GoldButtonProps {
   onClick?: () => void;
   className?: string;
   type?: 'button' | 'submit' | 'reset';
+  ariaLabel?: string; // ARIA support
 }
 
 const GoldButton: React.FC<GoldButtonProps> = ({
@@ -22,8 +23,9 @@ const GoldButton: React.FC<GoldButtonProps> = ({
   onClick,
   className = '',
   type = 'button',
+  ariaLabel,
 }) => {
-  const { theme } = useTheme();
+  const theme = useTheme();
   const [ripples, setRipples] = useState<Array<{ id: number; x: number; y: number }>>([]);
 
   const baseClasses = `
@@ -47,20 +49,14 @@ const GoldButton: React.FC<GoldButtonProps> = ({
       shadow-lg shadow-gold/25
       hover:shadow-xl hover:shadow-gold/30
       active:shadow-md
-      ${theme === 'dark' 
-        ? 'hover:from-gold-light hover:to-gold' 
-        : 'hover:from-gold-dark hover:to-gold'
-      }
+      hover:from-gold-dark hover:to-gold
     `,
     secondary: `
       bg-gradient-to-r from-gray/10 to-gray/5
       text-gold border border-gold/30
       backdrop-blur-md
       hover:bg-gradient-to-r hover:from-gold/10 hover:to-gold/5
-      ${theme === 'dark' 
-        ? 'bg-black/20 border-gold/20' 
-        : 'bg-white/80 border-gold/40'
-      }
+      bg-white/80 border-gold/40
     `,
     outline: `
       bg-transparent border-2 border-gold
@@ -140,6 +136,9 @@ const GoldButton: React.FC<GoldButtonProps> = ({
       whileTap={!disabled && !loading ? "tap" : undefined}
       onClick={handleClick}
       disabled={disabled || loading}
+      aria-label={ariaLabel}
+      aria-disabled={disabled || loading}
+      tabIndex={0}
     >
       {/* Loading spinner */}
       {loading && (

@@ -3,7 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Text, Ring } from '@react-three/drei';
 import * as THREE from 'three';
-import { Timeframe } from '@escrow/schemas';
+// import { Timeframe } from '@escrow/schemas';
+
+// Temporary local type until schemas package is properly linked
+type Timeframe = '1h' | '24h' | '7d' | '30d' | '90d' | '1y' | 'all';
 
 interface TimeframeRadialProps {
   selectedTimeframe: Timeframe;

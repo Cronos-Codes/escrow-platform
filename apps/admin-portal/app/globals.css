@@ -1,0 +1,207 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 222.2 47.4% 11.2%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222.2 84% 4.9%;
+    --muted: 210 40% 96%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96%;
+    --accent-foreground: 222.2 84% 4.9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 222.2 84% 4.9%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 222.2 84% 4.9%;
+    --foreground: 210 40% 98%;
+    --card: 222.2 84% 4.9%;
+    --card-foreground: 210 40% 98%;
+    --popover: 222.2 84% 4.9%;
+    --popover-foreground: 210 40% 98%;
+    --primary: 210 40% 98%;
+    --primary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 217.2 32.6% 17.5%;
+    --secondary-foreground: 210 40% 98%;
+    --muted: 217.2 32.6% 17.5%;
+    --muted-foreground: 215 20.2% 65.1%;
+    --accent: 217.2 32.6% 17.5%;
+    --accent-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 217.2 32.6% 17.5%;
+    --input: 217.2 32.6% 17.5%;
+    --ring: 212.7 26.8% 83.9%;
+  }
+
+  /* Gold Escrow Theme Variables */
+  :root {
+    --escrow-gold: 43 96% 56%;
+    --escrow-gold-foreground: 222.2 84% 4.9%;
+    --escrow-dark: 222.2 84% 4.9%;
+    --escrow-dark-foreground: 210 40% 98%;
+    --escrow-accent: 38 92% 50%;
+    --escrow-accent-foreground: 222.2 84% 4.9%;
+    --escrow-success: 142 76% 36%;
+    --escrow-success-foreground: 210 40% 98%;
+    --escrow-warning: 38 92% 50%;
+    --escrow-warning-foreground: 222.2 84% 4.9%;
+    --escrow-error: 0 84% 60%;
+    --escrow-error-foreground: 210 40% 98%;
+    --escrow-info: 217 91% 60%;
+    --escrow-info-foreground: 210 40% 98%;
+  }
+
+  .dark {
+    --escrow-gold: 43 96% 56%;
+    --escrow-gold-foreground: 222.2 84% 4.9%;
+    --escrow-dark: 210 40% 98%;
+    --escrow-dark-foreground: 222.2 84% 4.9%;
+    --escrow-accent: 38 92% 50%;
+    --escrow-accent-foreground: 222.2 84% 4.9%;
+    --escrow-success: 142 76% 36%;
+    --escrow-success-foreground: 210 40% 98%;
+    --escrow-warning: 38 92% 50%;
+    --escrow-warning-foreground: 222.2 84% 4.9%;
+    --escrow-error: 0 84% 60%;
+    --escrow-error-foreground: 210 40% 98%;
+    --escrow-info: 217 91% 60%;
+    --escrow-info-foreground: 210 40% 98%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+@layer components {
+  /* Custom scrollbar for admin portal */
+  .admin-scrollbar {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--escrow-gold)) hsl(var(--muted));
+  }
+
+  .admin-scrollbar::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  .admin-scrollbar::-webkit-scrollbar-track {
+    background: hsl(var(--muted));
+    border-radius: 4px;
+  }
+
+  .admin-scrollbar::-webkit-scrollbar-thumb {
+    background: hsl(var(--escrow-gold));
+    border-radius: 4px;
+  }
+
+  .admin-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--escrow-accent));
+  }
+
+  /* Admin portal specific components */
+  .admin-card {
+    @apply bg-card border border-border rounded-lg shadow-sm;
+  }
+
+  .admin-card-header {
+    @apply p-6 border-b border-border;
+  }
+
+  .admin-card-content {
+    @apply p-6;
+  }
+
+  .admin-card-footer {
+    @apply p-6 border-t border-border bg-muted/50;
+  }
+
+  .admin-button-primary {
+    @apply bg-escrow-primary text-escrow-primary-foreground hover:bg-escrow-primary/90 
+           focus:ring-2 focus:ring-escrow-primary focus:ring-offset-2 
+           disabled:opacity-50 disabled:cursor-not-allowed
+           transition-colors duration-200;
+  }
+
+  .admin-button-secondary {
+    @apply bg-escrow-secondary text-escrow-secondary-foreground hover:bg-escrow-secondary/90 
+           focus:ring-2 focus:ring-escrow-secondary focus:ring-offset-2 
+           disabled:opacity-50 disabled:cursor-not-allowed
+           transition-colors duration-200;
+  }
+
+  .admin-button-destructive {
+    @apply bg-escrow-error text-escrow-error-foreground hover:bg-escrow-error/90 
+           focus:ring-2 focus:ring-escrow-error focus:ring-offset-2 
+           disabled:opacity-50 disabled:cursor-not-allowed
+           transition-colors duration-200;
+  }
+
+  .admin-status-badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+
+  .admin-status-active {
+    @apply bg-escrow-success/10 text-escrow-success border border-escrow-success/20;
+  }
+
+  .admin-status-pending {
+    @apply bg-escrow-warning/10 text-escrow-warning border border-escrow-warning/20;
+  }
+
+  .admin-status-suspended {
+    @apply bg-escrow-error/10 text-escrow-error border border-escrow-error/20;
+  }
+
+  .admin-status-disputed {
+    @apply bg-escrow-info/10 text-escrow-info border border-escrow-info/20;
+  }
+
+  /* Loading states */
+  .admin-loading {
+    @apply animate-pulse bg-muted rounded;
+  }
+
+  .admin-loading-text {
+    @apply admin-loading h-4 w-24;
+  }
+
+  .admin-loading-avatar {
+    @apply admin-loading h-10 w-10 rounded-full;
+  }
+
+  /* Focus styles for accessibility */
+  .admin-focus {
+    @apply focus:outline-none focus:ring-2 focus:ring-escrow-primary focus:ring-offset-2;
+  }
+
+  /* High-risk action styling */
+  .admin-high-risk {
+    @apply border-2 border-escrow-error/50 bg-escrow-error/5;
+  }
+
+  .admin-high-risk-header {
+    @apply bg-escrow-error/10 border-b border-escrow-error/20;
+  }
+}

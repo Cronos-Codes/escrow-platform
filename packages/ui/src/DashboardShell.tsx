@@ -15,7 +15,7 @@ const DashboardShell: React.FC<DashboardShellProps> = ({
   headerContent,
   className = '',
 }) => {
-  const { theme } = useTheme();
+  const theme = useTheme();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -86,10 +86,7 @@ const DashboardShell: React.FC<DashboardShellProps> = ({
                 fixed lg:relative z-50 w-80 h-full
                 bg-gradient-to-b from-black/90 to-gray-900/90
                 border-r border-gold/20 backdrop-blur-xl
-                ${theme === 'dark' 
-                  ? 'bg-black/80 border-gold/20' 
-                  : 'bg-white/90 border-gold/30'
-                }
+                bg-white/90 border-gold/30
               `}
               variants={sidebarVariants}
               initial="closed"
@@ -135,10 +132,7 @@ const DashboardShell: React.FC<DashboardShellProps> = ({
             h-16 px-6 flex items-center justify-between
             bg-gradient-to-r from-black/80 to-gray-900/80
             border-b border-gold/20 backdrop-blur-lg
-            ${theme === 'dark' 
-              ? 'bg-black/60 border-gold/20' 
-              : 'bg-white/80 border-gold/30'
-            }
+            bg-white/80 border-gold/30
           `}
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}

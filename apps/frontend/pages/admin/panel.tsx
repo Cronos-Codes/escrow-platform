@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence, Reorder } from 'framer-motion';
+import Layout from '../../components/shared/Layout';
 import { DashboardShell } from '../../components/DashboardShell';
 import { DataTable } from '../../components/dashboard/DataTable';
 
@@ -137,7 +138,8 @@ export default function AdminPanel() {
   };
 
   return (
-    <DashboardShell user={{ id: '1', email: 'admin@example.com', role: 'admin' }} role="admin">
+    <Layout>
+      <DashboardShell user={{ id: '1', email: 'admin@example.com', role: 'admin' }} role="admin">
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">Admin Panel</h1>
@@ -496,6 +498,7 @@ export default function AdminPanel() {
           </motion.div>
         )}
       </AnimatePresence>
-    </DashboardShell>
+      </DashboardShell>
+    </Layout>
   );
 } 

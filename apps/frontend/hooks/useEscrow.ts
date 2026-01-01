@@ -1,12 +1,13 @@
 import { useState, useCallback } from 'react';
 import { useAuth } from '../../../packages/auth/src';
+import { getAuth } from 'firebase/auth';
 import { EscrowState, EscrowEvent } from '../../../packages/core/src/fsm';
-import { 
-  CreateDealInput, 
-  FundDealInput, 
-  ApproveMilestoneInput, 
-  ReleaseFundsInput, 
-  RaiseDisputeInput, 
+import {
+  CreateDealInput,
+  FundDealInput,
+  ApproveMilestoneInput,
+  ReleaseFundsInput,
+  RaiseDisputeInput,
   CancelDealInput,
   DealResponse,
   DealListResponse,
@@ -16,13 +17,33 @@ import {
 // API base URL
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:5001/your-project/us-central1';
 
-// Helper function to call Firebase Functions
+// Helper function to call Firebase Functions with authentication
 async function callFunction<T>(functionName: string, data: any): Promise<T> {
+  // Get current user's ID token for authentication
+  const auth = getAuth();
+  const currentUser = auth.currentUser;
+  let authToken: string | null = null;
+
+  if (currentUser) {
+    try {
+      authToken = await currentUser.getIdToken();
+    } catch (err) {
+      console.warn('Failed to get auth token:', err);
+    }
+  }
+
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+  };
+
+  // Include Authorization header if we have a token
+  if (authToken) {
+    headers['Authorization'] = `Bearer ${authToken}`;
+  }
+
   const response = await fetch(`${API_BASE_URL}/${functionName}`, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
+    headers,
     body: JSON.stringify({ data }),
   });
 

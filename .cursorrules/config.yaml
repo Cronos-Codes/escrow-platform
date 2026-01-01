@@ -199,6 +199,18 @@ rules:
       Disable browser console logging in production builds
     severity: warning
 
+  # ================================================================
+  # 9. DEMO AND EXAMPLE PAGE RESTRICTIONS
+  # ================================================================
+
+  - id: no-demo-pages-unless-requested
+    description: |
+      Do not create demo pages, example pages, or showcase components unless
+      explicitly requested by the user. Focus on production-ready implementation
+      and avoid creating unnecessary demonstration files.
+      If a demo page exists and is not needed, remove it or mark it as deprecated.
+    severity: error
+
 lockedFiles:
   - path: "packages/core/engine.ts"
   - path: "apps/contracts/contracts/Escrow.sol"

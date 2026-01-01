@@ -2,14 +2,14 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import { Button } from '../../../packages/ui/src/Button';
-import { Input } from '../../../packages/ui/src/Input';
-import { Select } from '../../../packages/ui/src/Select';
-import { Card } from '../../../packages/ui/src/Card';
-import { Badge } from '../../../packages/ui/src/Badge';
+import { Button } from '@ui/Button';
+import { Input } from '@ui/Input';
+import { Select } from '@ui/Select';
+import { Card } from '@ui/Card';
+import { Badge } from '@ui/Badge';
 import { useCreateDeal } from '../../hooks/useEscrow';
-import { EscrowState, getStateDescription } from '../../../packages/core/src/fsm';
-import { CreateDealInput } from '../../../packages/schemas/src/escrow';
+import { EscrowState, getStateDescription } from '@core/fsm';
+import { CreateDealInput } from '@schemas/escrow';
 
 interface DealWizardProps {
   onComplete?: (dealId: string) => void;

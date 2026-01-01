@@ -1,0 +1,61 @@
+/* Globe Container Styles */
+.globe-container {
+  position: relative;
+  overflow: hidden;
+  pointer-events: auto;
+  touch-action: pan-y;
+}
+
+/* Canvas Overlay - Non-interactive in hero mode, allows scroll through */
+.globe-canvas-overlay {
+  pointer-events: none !important;
+  touch-action: pan-y pinch-zoom !important;
+  user-select: none !important;
+  -webkit-user-select: none !important;
+  -moz-user-select: none !important;
+  -ms-user-select: none !important;
+}
+
+/* Ensure scroll works through overlay - all children inherit pointer-events: none */
+.globe-canvas-overlay * {
+  pointer-events: none !important;
+}
+
+/* Hero mode overlay - explicitly ensure no interaction */
+.globe-canvas-overlay-hero {
+  pointer-events: none !important;
+  touch-action: pan-y pinch-zoom !important;
+}
+
+.globe-canvas-overlay-hero * {
+  pointer-events: none !important;
+}
+
+/* Widget mode - allow interaction for transaction clicks */
+/* Higher specificity to override the base .globe-canvas-overlay rule */
+.globe-canvas-overlay:not(.globe-canvas-overlay-hero) {
+  pointer-events: auto !important;
+  touch-action: auto !important;
+}
+
+.globe-canvas-overlay:not(.globe-canvas-overlay-hero) canvas {
+  pointer-events: auto !important;
+}
+
+/* Allow parent container to handle scroll */
+.interactive-globe {
+  position: relative;
+  overflow: visible;
+}
+
+/* Fix for mobile touch scrolling */
+@media (max-width: 768px) {
+  .globe-canvas-overlay {
+    touch-action: pan-y pinch-zoom !important;
+  }
+  
+  .globe-canvas-overlay-hero {
+    touch-action: pan-y pinch-zoom !important;
+  }
+}
+

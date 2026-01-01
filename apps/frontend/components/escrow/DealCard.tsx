@@ -1,16 +1,22 @@
+// This file uses path aliases (@ui, @core, @schemas) as defined in the root tsconfig.json
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Card } from '../../../packages/ui/src/Card';
-import { Badge } from '../../../packages/ui/src/Badge';
-import { Button } from '../../../packages/ui/src/Button';
-import { EscrowState, getStateDescription } from '../../../packages/core/src/fsm';
-import { DealResponse } from '../../../packages/schemas/src/escrow';
+import { Card } from '@ui/Card';
+import { Badge } from '@ui/Badge';
+import { Button } from '@ui/Button';
+import { Spinner } from '@ui/Spinner';
+import { EscrowState, getStateDescription } from '@core/fsm';
+import type { DealResponse } from '@schemas/escrow';
+import { t } from 'next-i18next';
 
 interface DealCardProps {
-  deal: DealResponse;
+  deal?: DealResponse;
   onAction?: (action: string, dealId: string) => void;
   showActions?: boolean;
   userRole?: string;
+  loading?: boolean;
+  error?: string;
+  empty?: boolean;
 }
 
 const getStateColor = (state: EscrowState) => {
@@ -94,7 +100,40 @@ const formatDate = (timestamp: number) => {
   });
 };
 
-export function DealCard({ deal, onAction, showActions = true, userRole }: DealCardProps) {
+export function DealCard({ deal, onAction, showActions = true, userRole, loading = false, error, empty = false }: DealCardProps) {
+  if (loading) {
+    return (
+      <div className="animate-pulse p-6 bg-white rounded-xl shadow border border-gray-200 min-h-[200px] flex flex-col gap-4" aria-label="Loading deal skeleton" role="status" aria-live="polite">
+        <div className="h-6 w-1/3 bg-gray-200 rounded" />
+        <div className="h-4 w-1/2 bg-gray-200 rounded" />
+        <div className="h-4 w-1/4 bg-gray-200 rounded" />
+        <div className="h-8 w-full bg-gray-100 rounded" />
+        <div className="h-4 w-1/3 bg-gray-200 rounded" />
+        <div className="h-10 w-full bg-gray-100 rounded" />
+      </div>
+    );
+  }
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[200px] text-red-600" role="alert" aria-live="assertive">
+        <svg className="w-8 h-8 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+        </svg>
+        <span role="alert" className="font-semibold">{error}</span>
+      </div>
+    );
+  }
+  if (empty || !deal) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[200px] text-gray-400" role="status" aria-live="polite">
+        <svg className="w-8 h-8 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17v-2a4 4 0 014-4h3m4 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1" />
+        </svg>
+        <span>{t('No deal data available.')}</span>
+      </div>
+    );
+  }
+
   const handleAction = (action: string) => {
     onAction?.(action, deal.dealId);
   };
@@ -162,7 +201,7 @@ export function DealCard({ deal, onAction, showActions = true, userRole }: DealC
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.2 }}
     >
-      <Card className="p-6 hover:shadow-lg transition-shadow duration-200">
+      <Card className="p-6 hover:shadow-lg transition-shadow duration-200" role="region" aria-label={`Deal card for deal #${deal.dealId}`}>
         {/* Header */}
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-center space-x-3">
@@ -190,11 +229,11 @@ export function DealCard({ deal, onAction, showActions = true, userRole }: DealC
         {/* Parties */}
         <div className="grid grid-cols-2 gap-4 mb-4">
           <div>
-            <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Payer</p>
+            <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">{t('Payer')}</p>
             <p className="text-sm font-mono text-gray-900">{formatAddress(deal.payer)}</p>
           </div>
           <div>
-            <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">Payee</p>
+            <p className="text-xs font-medium text-gray-500 uppercase tracking-wide">{t('Payee')}</p>
             <p className="text-sm font-mono text-gray-900">{formatAddress(deal.payee)}</p>
           </div>
         </div>
@@ -202,7 +241,7 @@ export function DealCard({ deal, onAction, showActions = true, userRole }: DealC
         {/* Metadata */}
         {deal.metadata && (
           <div className="mb-4">
-            <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">Metadata</p>
+            <p className="text-xs font-medium text-gray-500 uppercase tracking-wide mb-1">{t('Metadata')}</p>
             <a
               href={deal.metadata}
               target="_blank"
@@ -217,26 +256,26 @@ export function DealCard({ deal, onAction, showActions = true, userRole }: DealC
         {/* Timestamps */}
         <div className="space-y-1 mb-4">
           <p className="text-xs text-gray-500">
-            Created: {formatDate(deal.createdAt)}
+            {t('Created')}: {formatDate(deal.createdAt)}
           </p>
           {deal.fundedAt && (
             <p className="text-xs text-gray-500">
-              Funded: {formatDate(deal.fundedAt)}
+              {t('Funded')}: {formatDate(deal.fundedAt)}
             </p>
           )}
           {deal.approvedAt && (
             <p className="text-xs text-gray-500">
-              Approved: {formatDate(deal.approvedAt)}
+              {t('Approved')}: {formatDate(deal.approvedAt)}
             </p>
           )}
           {deal.releasedAt && (
             <p className="text-xs text-gray-500">
-              Released: {formatDate(deal.releasedAt)}
+              {t('Released')}: {formatDate(deal.releasedAt)}
             </p>
           )}
           {deal.cancelledAt && (
             <p className="text-xs text-gray-500">
-              Cancelled: {formatDate(deal.cancelledAt)}
+              {t('Cancelled')}: {formatDate(deal.cancelledAt)}
             </p>
           )}
         </div>
@@ -251,6 +290,7 @@ export function DealCard({ deal, onAction, showActions = true, userRole }: DealC
                 size="sm"
                 onClick={() => handleAction(action.key)}
                 className="flex-1"
+                aria-label={action.label}
               >
                 {action.label}
               </Button>
@@ -265,8 +305,9 @@ export function DealCard({ deal, onAction, showActions = true, userRole }: DealC
             size="sm"
             onClick={() => handleAction('view')}
             className="w-full text-blue-600 hover:text-blue-800"
+            aria-label={t('View deal details')}
           >
-            View Details →
+            {t('View Details →')}
           </Button>
         </div>
       </Card>

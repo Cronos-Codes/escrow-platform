@@ -8,6 +8,14 @@ module.exports = {
   ],
   darkMode: 'class',
   theme: {
+    screens: {
+      xs: '375px',
+      sm: '640px',
+      md: '768px',
+      lg: '1024px',
+      xl: '1280px',
+      '2xl': '1536px',
+    },
     extend: {
       colors: {
         // Gold Escrow brand colors
@@ -60,6 +68,18 @@ module.exports = {
         'shimmer': 'shimmer 2s infinite',
         'float': 'float 6s ease-in-out infinite',
       },
+      transformStyle: {
+        'preserve-3d': 'preserve-3d',
+      },
+      backfaceVisibility: {
+        'hidden': 'hidden',
+      },
+      perspective: {
+        '1000': '1000px',
+      },
+      rotate: {
+        'y-180': 'rotateY(180deg)',
+      },
       keyframes: {
         fadeIn: {
           '0%': { opacity: '0' },
@@ -95,6 +115,20 @@ module.exports = {
         'gold-glow': '0 0 20px rgba(212, 175, 55, 0.5)',
         'gold-soft': '0 2px 8px rgba(212, 175, 55, 0.15)',
         'depth': '0 10px 25px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)',
+      },
+      spacing: {
+        'touch': '44px', // Minimum touch target size (WCAG 2.1 AA)
+        'safe-top': 'env(safe-area-inset-top)',
+        'safe-bottom': 'env(safe-area-inset-bottom)',
+        'safe-left': 'env(safe-area-inset-left)',
+        'safe-right': 'env(safe-area-inset-right)',
+      },
+      fontSize: {
+        'xs-mobile': ['0.75rem', { lineHeight: '1rem' }],
+        'sm-mobile': ['0.875rem', { lineHeight: '1.25rem' }],
+        'base-mobile': ['1rem', { lineHeight: '1.5rem' }],
+        'lg-mobile': ['1.125rem', { lineHeight: '1.75rem' }],
+        'xl-mobile': ['1.25rem', { lineHeight: '1.75rem' }],
       },
     },
   },

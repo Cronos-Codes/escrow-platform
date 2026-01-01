@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useDisputeEscalation } from '../../../hooks/useDisputeEscalation';
+import { useDisputeEscalation } from '../../hooks/useDisputeEscalation';
 import { useAuth } from '@escrow/auth';
 import { Button } from '@escrow/ui';
 import { 

@@ -12,27 +12,41 @@
     "build": "turbo run build",
     "dev": "turbo run dev",
     "dev:frontend": "turbo run dev --filter=frontend",
+    "dev:frontend:ngrok": "cd apps/frontend && npm run dev:ngrok",
     "dev:backend": "turbo run dev --filter=backend",
     "lint": "turbo run lint",
     "test": "turbo run test",
+    "test:ui": "turbo run test --filter=frontend",
+    "test:backend": "turbo run test --filter=backend",
+    "test:contracts": "turbo run test --filter=contracts",
     "test:coverage": "turbo run test --coverage",
     "contracts:test": "turbo run test --filter=contracts",
     "type-check": "turbo run type-check",
     "clean": "turbo run clean",
     "format": "prettier --write \"**/*.{ts,tsx,md,json}\"",
-    "prepare": "husky install"
+    "prepare": "npx husky install",
+    "postinstall": "npx husky install",
+    "bootstrap": "npm install && npm run build"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
-    "turbo": "^1.10.0",
-    "typescript": "^5.0.0",
-    "prettier": "^3.0.0",
+    "firebase-tools": "^14.9.0",
     "husky": "^8.0.0",
-    "lint-staged": "^13.0.0"
+    "lint-staged": "^13.0.0",
+    "prettier": "^3.0.0",
+    "turbo": "^2.5.4",
+    "typescript": "^5.0.0"
   },
   "engines": {
     "node": ">=18.0.0",
-    "pnpm": ">=8.0.0"
+    "npm": ">=9.0.0"
   },
-  "packageManager": "pnpm@8.0.0"
-} 
+  "packageManager": "npm@11.4.2",
+  "dependencies": {
+    "@radix-ui/react-dialog": "^1.1.14",
+    "@radix-ui/react-tabs": "^1.1.12",
+    "gsap": "^3.13.0",
+    "lucide-react": "^0.525.0",
+    "react-draggable": "^4.5.0"
+  }
+}

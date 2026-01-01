@@ -3,12 +3,12 @@ import { signOut } from 'firebase/auth';
 import { auth } from './firebase-config';
 
 export interface LogoutResult {
-  logout: () => Promise<void>;
+  logout: (onLoggedOut?: () => void) => Promise<void>;
   isLoggingOut: boolean;
 }
 
 export const useLogout = (): LogoutResult => {
-  const logout = useCallback(async () => {
+  const logout = useCallback(async (onLoggedOut?: () => void) => {
     try {
       // Sign out from Firebase
       await signOut(auth);
@@ -24,13 +24,13 @@ export const useLogout = (): LogoutResult => {
       // Clear any application state (to be integrated with state management)
       // TODO: Clear Redux/Zustand state when implemented
       
-      // Redirect to login page
-      window.location.href = '/login';
+      // Call the callback to open AuthModal or handle post-logout UI
+      if (onLoggedOut) onLoggedOut();
       
     } catch (error) {
       console.error('Logout failed:', error);
-      // Force redirect even if logout fails
-      window.location.href = '/login';
+      // Still call the callback even if logout fails
+      if (onLoggedOut) onLoggedOut();
     }
   }, []);
 

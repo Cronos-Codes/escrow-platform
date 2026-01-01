@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useDisputeTriage } from '../../../packages/dispute/src/aiTriage';
-import { useAuth } from '../../../packages/auth';
+import { useDisputeTriage } from '../../hooks/useDisputeTriage';
+import { useAuth } from '@escrow/auth';
 import { z } from 'zod';
 
 // ============ Types ============
@@ -42,8 +42,9 @@ export const DisputeForm: React.FC<DisputeFormProps> = ({
   isLoading = false
 }) => {
   const { user } = useAuth();
+  // Fix: useDisputeTriage returns { classifyDispute, isLoading, error, classification }
   const { classifyDispute, isLoading: isTriageLoading, error: triageError, classification } = useDisputeTriage();
-  
+
   const [formData, setFormData] = useState<DisputeFormData>({
     dealId: initialDealId,
     reason: '',
@@ -385,7 +386,7 @@ export const DisputeForm: React.FC<DisputeFormProps> = ({
             </motion.div>
           )}
 
-          {triageError && (
+          {RangeError && (
             <motion.div
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}

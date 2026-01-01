@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 import { DashboardShell, GoldCard, GoldButton, ThemeProvider } from '@escrow/ui';
+import Layout from '../../components/shared/Layout';
 import { OverviewCard3D } from '../../components/dashboard/OverviewCard3D';
 import { LineChart3D } from '../../components/dashboard/LineChart3D';
 import { BarChartPhysics } from '../../components/dashboard/BarChartPhysics';
@@ -8,7 +9,39 @@ import { DataTable } from '../../components/dashboard/DataTable';
 import { TrustScoreRing } from '../../components/dashboard/TrustScoreRing';
 import { Heatmap3D } from '../../components/dashboard/Heatmap3D';
 import { TimeframeRadial } from '../../components/dashboard/TimeframeRadial';
-import { Timeframe, DealMetrics, PaymasterMetrics, DisputeMetrics, AdapterMetrics } from '@escrow/schemas';
+// import { Timeframe, DealMetrics, PaymasterMetrics, DisputeMetrics, AdapterMetrics } from '@escrow/schemas';
+
+// Temporary local types until schemas package is properly linked
+type Timeframe = '1h' | '24h' | '7d' | '30d' | '90d' | '1y';
+
+type DealMetrics = {
+  totalDeals: number;
+  activeDeals: number;
+  completedDeals: number;
+  totalVolume: number;
+  averageDealSize: number;
+};
+
+type PaymasterMetrics = {
+  totalGasSponsored: number;
+  totalTransactions: number;
+  averageGasPrice: number;
+  costSavings: number;
+};
+
+type DisputeMetrics = {
+  totalDisputes: number;
+  resolvedDisputes: number;
+  averageResolutionTime: number;
+  resolutionRate: number;
+};
+
+type AdapterMetrics = {
+  totalShipments: number;
+  totalProperties: number;
+  totalAssays: number;
+  activeAdapters: number;
+};
 import Head from 'next/head';
 
 // Mock data for demonstration
@@ -374,7 +407,7 @@ const DashboardPage: React.FC = () => {
         <meta name="description" content="Gold Escrow platform dashboard" />
       </Head>
 
-      <DashboardShell
+      <Layout
         sidebarContent={<SidebarNav />}
         headerContent={<HeaderContent />}
       >
@@ -536,7 +569,7 @@ const DashboardPage: React.FC = () => {
             </div>
           </div>
       </div>
-    </DashboardShell>
+    </Layout>
     </ThemeProvider>
   );
 };

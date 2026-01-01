@@ -38,7 +38,7 @@ export const useTokenRefresh = (): TokenRefreshResult => {
           
           // Check if token is about to expire (within 5 minutes)
           const decodedToken = await user.getIdTokenResult();
-          const expirationTime = decodedToken.expirationTime;
+          const expirationTime = new Date(decodedToken.expirationTime);
           const currentTime = new Date();
           const timeUntilExpiry = expirationTime.getTime() - currentTime.getTime();
           

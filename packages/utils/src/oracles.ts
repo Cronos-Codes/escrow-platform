@@ -23,7 +23,7 @@ interface OracleSubscription {
 }
 
 export class OracleService {
-  private provider: ethers.providers.JsonRpcProvider;
+  private provider: ethers.JsonRpcProvider;
   private subscriptions: Map<string, OracleSubscription> = new Map();
   private retryConfig = {
     maxRetries: 3,
@@ -36,7 +36,7 @@ export class OracleService {
     private chainlinkNodeUrl: string,
     private chainlinkAccessKey?: string
   ) {
-    this.provider = new ethers.providers.JsonRpcProvider(rpcUrl);
+    this.provider = new ethers.JsonRpcProvider(rpcUrl);
   }
 
   /**

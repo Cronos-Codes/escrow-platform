@@ -13,7 +13,7 @@
   "dependencies": {
     "firebase": "^10.7.0",
     "react": "^18.2.0",
-    "@escrow/schemas": "workspace:*"
+    "@escrow/schemas": "*"
   },
   "devDependencies": {
     "typescript": "^5.0.0",

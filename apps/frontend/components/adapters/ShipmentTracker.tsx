@@ -1,5 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { Shipment, ShipmentStatus } from '@escrow/schemas';
+// import { Shipment, ShipmentStatus } from '@escrow/schemas';
+
+// Temporary local types until schemas package is properly linked
+type ShipmentStatus = 'pending' | 'picked_up' | 'in_transit' | 'customs_clearance' | 'delivered' | 'cancelled' | 'delayed';
+
+type Shipment = {
+  id: string;
+  trackingNumber: string;
+  status: ShipmentStatus;
+  origin: string;
+  destination: string;
+  estimatedDelivery: string;
+  actualDelivery?: string;
+  carrier: string;
+  weight: number;
+  value: number;
+};
 
 interface ShipmentTrackerProps {
   onTrack?: (shipmentId: string) => Promise<ShipmentStatus>;

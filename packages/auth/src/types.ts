@@ -144,4 +144,19 @@ export interface OAuthResult {
   loginWithOAuth: (provider: OAuthProvider) => Promise<void>;
   handleOAuthCallback: (code: string, state: string) => Promise<void>;
   logoutFromOAuth: () => Promise<void>;
+}
+
+// Verification Status Types
+export interface VerificationStatus {
+  emailVerified: boolean;
+  phoneVerified: boolean;
+  walletConnected: boolean;
+  hasAnyVerification: boolean;
+  canSkipSecondFactor: boolean;
+}
+
+export interface UseVerificationStatusResult {
+  verificationStatus: VerificationStatus;
+  checkAllVerificationStatus: () => Promise<void>;
+  refreshVerificationStatus: () => Promise<void>;
 } 

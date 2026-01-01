@@ -1,4 +1,24 @@
 import { useState, useCallback } from 'react';
+import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
+import { db } from './firebase-config';
+import { findUserByCredential, linkWalletCredential } from './credentialLinking';
+import { User as FirebaseUser } from 'firebase/auth';
+
+// Lazy load ethers.js for better code splitting
+let ethersPromise: Promise<typeof import('ethers')> | null = null;
+const loadEthers = async () => {
+  if (!ethersPromise) {
+    ethersPromise = import('ethers');
+  }
+  return ethersPromise;
+};
+
+// Add type for window.ethereum
+declare global {
+  interface Window {
+    ethereum?: any;
+  }
+}
 
 export interface WalletLoginState {
   loading: boolean;
@@ -6,11 +26,12 @@ export interface WalletLoginState {
   success: boolean;
   walletAddress: string | null;
   isConnected: boolean;
+  isNewUser: boolean;
 }
 
 export interface WalletLoginResult {
   state: WalletLoginState;
-  connectWallet: () => Promise<void>;
+  connectWallet: (currentUser?: FirebaseUser | null) => Promise<{ walletAddress: string; isNewUser: boolean } | null>;
   disconnectWallet: () => void;
   reset: () => void;
 }
@@ -22,6 +43,7 @@ export const useWalletLogin = (): WalletLoginResult => {
     success: false,
     walletAddress: null,
     isConnected: false,
+    isNewUser: false,
   });
 
   const reset = useCallback(() => {
@@ -31,33 +53,75 @@ export const useWalletLogin = (): WalletLoginResult => {
       success: false,
       walletAddress: null,
       isConnected: false,
+      isNewUser: false,
     });
   }, []);
 
-  const connectWallet = useCallback(async () => {
+  const connectWallet = useCallback(async (
+    currentUser?: FirebaseUser | null
+  ): Promise<{ walletAddress: string; isNewUser: boolean } | null> => {
     try {
       setState(prev => ({ ...prev, loading: true, error: null }));
 
-      // TODO: Implement MetaMask and WalletConnect integration in Phase 2
-      // For now, simulate wallet connection
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      if (!window.ethereum) {
+        throw new Error('MetaMask or wallet extension not found. Please install a Web3 wallet.');
+      }
 
-      const mockAddress = '0x742d35Cc6634C0532925a3b8D4C9db96C4b4d8b6';
+      // Lazy load ethers.js
+      const ethers = await loadEthers();
+
+      // Request account access
+      const provider = new ethers.BrowserProvider(window.ethereum);
+      const accounts = await provider.send('eth_requestAccounts', []);
       
+      if (!accounts || accounts.length === 0) {
+        throw new Error('No accounts found. Please unlock your wallet.');
+      }
+
+      const walletAddress = accounts[0].toLowerCase();
+      
+      // Check if wallet is already linked to a user
+      const existingUserId = await findUserByCredential('wallet', walletAddress);
+      let isNewUser = !existingUserId;
+
+      // If user is already logged in, link wallet to their account
+      if (currentUser && currentUser.uid) {
+        const linkResult = await linkWalletCredential(currentUser, walletAddress);
+        if (!linkResult.success) {
+          throw new Error(linkResult.error || 'Failed to link wallet to account');
+        }
+        isNewUser = false;
+      } else if (!existingUserId) {
+        // New user - create user document with wallet
+        await setDoc(doc(db, 'users', walletAddress), {
+          walletAddress,
+          authMethods: ['wallet'],
+          role: 'buyer',
+          kycStatus: 'pending',
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+        });
+      }
+
       setState(prev => ({
         ...prev,
         loading: false,
         success: true,
-        walletAddress: mockAddress,
+        walletAddress,
         isConnected: true,
+        isNewUser,
       }));
 
+      return { walletAddress, isNewUser };
+
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to connect wallet';
       setState(prev => ({
         ...prev,
         loading: false,
-        error: error instanceof Error ? error.message : 'Failed to connect wallet',
+        error: errorMessage,
       }));
+      return null;
     }
   }, []);
 
@@ -66,6 +130,7 @@ export const useWalletLogin = (): WalletLoginResult => {
       ...prev,
       walletAddress: null,
       isConnected: false,
+      isNewUser: false,
     }));
   }, []);
 

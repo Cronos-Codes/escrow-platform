@@ -13,32 +13,45 @@
     "build-storybook": "storybook build"
   },
   "dependencies": {
-    "react": "^18.2.0",
-    "framer-motion": "^10.16.0",
-    "three": "^0.158.0",
-    "@react-three/fiber": "^8.15.0",
+    "@hookform/resolvers": "^3.3.0",
+    "@react-spring/three": "^9.7.3",
     "@react-three/drei": "^9.88.0",
-    "popmotion": "^11.0.0",
-    "lenis": "^1.0.0",
+    "@react-three/fiber": "^8.15.0",
     "clsx": "^2.0.0",
-    "tailwind-merge": "^2.0.0"
+    "d3": "^7.8.0",
+    "framer-motion": "^10.16.0",
+    "lenis": "^1.0.0",
+    "popmotion": "^11.0.0",
+    "react": "^18.2.0",
+    "react-hook-form": "^7.48.0",
+    "tailwind-merge": "^2.0.0",
+    "three": "^0.158.0",
+    "zod": "^3.22.0"
   },
   "devDependencies": {
-    "typescript": "^5.0.0",
-    "vitest": "^0.34.0",
+    "@storybook/addon-essentials": "^7.5.0",
+    "@storybook/addon-interactions": "^7.5.0",
+    "@storybook/react": "^7.5.0",
+    "@storybook/testing-library": "^0.2.0",
+    "@testing-library/jest-dom": "^6.7.0",
+    "@testing-library/react": "^13.4.0",
+    "@types/d3": "^7.4.0",
     "@types/node": "^20.0.0",
     "@types/react": "^18.2.0",
     "@types/three": "^0.158.0",
-    "@storybook/react": "^7.5.0",
-    "@storybook/addon-essentials": "^7.5.0",
-    "@storybook/addon-interactions": "^7.5.0",
-    "@storybook/testing-library": "^0.2.0",
-    "eslint": "^8.0.0",
     "@typescript-eslint/eslint-plugin": "^6.0.0",
-    "@typescript-eslint/parser": "^6.0.0"
+    "@typescript-eslint/parser": "^6.0.0",
+    "apexcharts": "^5.3.3",
+    "class-variance-authority": "^0.7.1",
+    "eslint": "^8.0.0",
+    "jsdom": "^23.0.0",
+    "react-apexcharts": "^1.7.0",
+    "recharts": "^3.1.2",
+    "typescript": "^5.0.0",
+    "vitest": "^0.34.0"
   },
   "peerDependencies": {
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   }
-} 
+}

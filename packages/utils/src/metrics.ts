@@ -405,7 +405,7 @@ export const metricsTracker = MetricsTracker.getInstance();
 // Event emission for analytics
 export const emitAnalyticsEvent = (eventName: string, data: any): void => {
   // Emit events for analytics tracking
-  const events = {
+  const events: Record<string, string> = {
     deed_tokenized: 'Real estate deed tokenization',
     assay_verified: 'Precious metals assay verification',
     shipment_updated: 'Oil & gas shipment status update',

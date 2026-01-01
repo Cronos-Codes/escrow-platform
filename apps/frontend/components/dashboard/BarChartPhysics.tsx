@@ -136,7 +136,11 @@ const BarChart3D: React.FC<{
               <group key={index} position={[xPosition, yPosition, 0]}>
                 {/* Bar */}
                 <mesh
-                  ref={(el) => (barRefs.current[barIndex] = el)}
+                  ref={(el) => {
+                    if (el) {
+                      barRefs.current[barIndex] = el;
+                    }
+                  }}
                   onPointerOver={() => setHoveredIndex(barIndex)}
                   onPointerOut={() => setHoveredIndex(null)}
                   position={[0, 0, 0]}

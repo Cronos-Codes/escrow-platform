@@ -3,10 +3,11 @@ import {
   RecaptchaVerifier, 
   signInWithPhoneNumber, 
   PhoneAuthProvider,
+  signInWithCredential,
   UserCredential 
 } from 'firebase/auth';
+import type { FirebaseError } from 'firebase/app';
 import { auth } from './firebase-config';
-import { phoneOtpSchema } from '@escrow/schemas';
 
 export interface PhoneOtpState {
   loading: boolean;
@@ -39,13 +40,33 @@ export const usePhoneOtp = (): PhoneOtpResult => {
     });
   }, []);
 
+  const mapFirebasePhoneError = (error: unknown): string => {
+    const fallback = 'Failed to send OTP';
+    const err = error as Partial<FirebaseError> | undefined;
+    const code = (err && 'code' in err ? (err as any).code : undefined) as string | undefined;
+    switch (code) {
+      case 'auth/invalid-phone-number':
+        return 'Invalid phone number format';
+      case 'auth/too-many-requests':
+        return 'Too many attempts. Please try again later';
+      case 'auth/missing-phone-number':
+        return 'Phone number is required';
+      case 'auth/quota-exceeded':
+        return 'Request quota exceeded. Please try again later';
+      case 'auth/captcha-check-failed':
+        return 'Security check failed. Please retry';
+      default:
+        return err && typeof (err as any).message === 'string' ? (err as any).message : fallback;
+    }
+  };
+
   const sendOtp = useCallback(async (phoneNumber: string) => {
     try {
       setState(prev => ({ ...prev, loading: true, error: null }));
 
-      // Validate phone number format
-      const validation = phoneOtpSchema.pick({ phoneNumber: true }).safeParse({ phoneNumber });
-      if (!validation.success) {
+      // Basic E.164 validation (avoid cross-package runtime deps)
+      const e164 = /^\+?[1-9]\d{1,14}$/;
+      if (!e164.test(phoneNumber)) {
         throw new Error('Invalid phone number format');
       }
 
@@ -75,19 +96,35 @@ export const usePhoneOtp = (): PhoneOtpResult => {
       setState(prev => ({
         ...prev,
         loading: false,
-        error: error instanceof Error ? error.message : 'Failed to send OTP',
+        error: mapFirebasePhoneError(error),
       }));
     }
   }, []);
+
+  const mapFirebaseVerifyError = (error: unknown): string => {
+    const fallback = 'Failed to verify OTP';
+    const err = error as Partial<FirebaseError> | undefined;
+    const code = (err && 'code' in err ? (err as any).code : undefined) as string | undefined;
+    switch (code) {
+      case 'auth/invalid-verification-code':
+        return 'Invalid verification code';
+      case 'auth/code-expired':
+        return 'Verification code has expired';
+      case 'auth/missing-verification-code':
+        return 'Enter the verification code';
+      default:
+        return err && typeof (err as any).message === 'string' ? (err as any).message : fallback;
+    }
+  };
 
   const verifyOtp = useCallback(async (otpCode: string): Promise<UserCredential | null> => {
     try {
       setState(prev => ({ ...prev, loading: true, error: null }));
 
-      // Validate OTP format
-      const validation = phoneOtpSchema.pick({ otpCode: true }).safeParse({ otpCode });
-      if (!validation.success) {
-        throw new Error('Invalid OTP format');
+      // 6-digit OTP validation
+      const otpRegex = /^\d{6}$/;
+      if (!otpRegex.test(otpCode)) {
+        throw new Error('Invalid verification code');
       }
 
       if (!state.verificationId) {
@@ -96,7 +133,7 @@ export const usePhoneOtp = (): PhoneOtpResult => {
 
       // Create credential and sign in
       const credential = PhoneAuthProvider.credential(state.verificationId, otpCode);
-      const userCredential = await auth.signInWithCredential(credential);
+      const userCredential = await signInWithCredential(auth, credential);
 
       setState(prev => ({
         ...prev,
@@ -110,7 +147,7 @@ export const usePhoneOtp = (): PhoneOtpResult => {
       setState(prev => ({
         ...prev,
         loading: false,
-        error: error instanceof Error ? error.message : 'Failed to verify OTP',
+        error: mapFirebaseVerifyError(error),
       }));
       return null;
     }

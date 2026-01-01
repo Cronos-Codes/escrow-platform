@@ -1,6 +1,5 @@
 import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useHotkeys } from 'react-hotkeys-hook';
 
 interface Column<T> {
   key: keyof T;
@@ -173,21 +172,26 @@ export function DataTable<T extends Record<string, any>>({
   };
 
   // Keyboard navigation
-  useHotkeys('ctrl+f', (e) => {
-    e.preventDefault();
-    const searchInput = document.getElementById('table-search') as HTMLInputElement;
-    searchInput?.focus();
-  });
+  useEffect(() => {
+    const handleKeydown = (e: KeyboardEvent) => {
+      if (e.ctrlKey || e.metaKey) {
+        if (e.key === 'f') {
+          e.preventDefault();
+          const searchInput = document.getElementById('table-search') as HTMLInputElement;
+          searchInput?.focus();
+        } else if (e.key === 'a') {
+          e.preventDefault();
+          handleSelectAll();
+        }
+      } else if (e.key === 'Escape') {
+        setSearchTerm('');
+        setFilters({});
+      }
+    };
 
-  useHotkeys('ctrl+a', (e) => {
-    e.preventDefault();
-    handleSelectAll();
-  });
-
-  useHotkeys('escape', () => {
-    setSearchTerm('');
-    setFilters({});
-  });
+    document.addEventListener('keydown', handleKeydown);
+    return () => document.removeEventListener('keydown', handleKeydown);
+  }, [handleSelectAll]);
 
   // Reset to first page when filters change
   useEffect(() => {

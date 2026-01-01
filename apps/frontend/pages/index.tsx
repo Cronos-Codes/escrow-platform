@@ -1,66 +1,130 @@
-import React from 'react';
+import React, { useState } from 'react';
+import Head from 'next/head';
+import Layout from '../components/shared/Layout';
+import Hero from '../components/home/Hero';
+import UseCases from '../components/home/UseCases';
+import Testimonials from '../components/home/Testimonials';
+import ContactCTA from '../components/home/ContactCTA';
+import StatsBanner from '../components/home/StatsBanner';
+import CaseStudies from '../components/home/CaseStudies';
+import FAQs from '../components/home/FAQs';
+import RegulatoryBadgeStrip from '../components/home/RegulatoryBadgeStrip';
+import TrustSignals from '../components/home/TrustSignals';
+import TrustedBy from '../components/home/TrustedBy';
+import AuthModal from '@escrow/ui/src/components/modals/AuthModal';
+import FluidBackground from '../components/shared/FluidBackground';
+// New interactive sections
+import IndustryPortalGrid from '../components/home/IndustryPortalGrid';
+import TrustShieldVisualizer from '../components/home/TrustShieldVisualizer';
+import LivingContractScroll from '../components/home/LivingContractScroll';
+
+// Mock data highlights based on GlobalHeatmap mockData
+const dataHighlights = [
+  { x: 0.25, y: 0.35, intensity: 1 }, // UAE
+  { x: 0.65, y: 0.55, intensity: 0.7 }, // UK
+  { x: 0.55, y: 0.45, intensity: 0.5 }, // India
+];
 
 export default function HomePage() {
+  const [contactOpen, setContactOpen] = useState(false);
+  const [pdfOpen, setPdfOpen] = useState(false);
+  const [authModalOpen, setAuthModalOpen] = useState(false);
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
-      <div className="text-center max-w-4xl mx-auto px-4">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">
-          AI-Powered Escrow & Paymaster Platform
-        </h1>
-        <p className="text-xl text-gray-600 mb-8">
-          Secure, transparent, and intelligent escrow services for high-value transactions
-        </p>
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <div className="bg-white rounded-lg shadow-lg p-6">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-4">✅ Phase 1 Complete</h2>
-            <ul className="text-left space-y-2 text-gray-600">
-              <li>• Authentication & Access Control</li>
-              <li>• Phone/Email OTP Verification</li>
-              <li>• Wallet Login (Stubbed)</li>
-              <li>• Role-Based Access Control</li>
-              <li>• Zod Schema Validation</li>
-              <li>• Firebase Cloud Functions</li>
-              <li>• Responsive UI with Framer Motion</li>
-              <li>• Dashboard Shell with Role Navigation</li>
-            </ul>
+    <FluidBackground
+      enablePatternOverlay
+      enableDataHighlights
+      dataHighlights={dataHighlights}
+      enableAmbientGlow
+      enableParallax
+      colorful={true}
+      bloomEnabled={true}
+      sunraysEnabled={true}
+      backgroundColor="#1C2A39"
+    >
+      <Layout>
+        <Head>
+          <title>Gold Escrow | Licensed Legal Escrow Platform</title>
+          <meta name="description" content="Licensed, regulated escrow for real estate, commodities, and complex transactions. KYC/AML compliant. Trusted by legal professionals." />
+          <meta name="keywords" content="escrow, legal escrow, KYC, fiduciary, compliance, UAE, real estate, commodities, paymaster, neutral, regulated, law" />
+          <meta name="viewport" content="width=device-width, initial-scale=1" />
+        </Head>
+        <div className="snap-section">
+          <Hero onOpenContact={() => setContactOpen(true)} onOpenAuth={() => setAuthModalOpen(true)} />
+        </div>
+        <div className="snap-section hw-accelerate">
+          <TrustedBy />
+        </div>
+        <div className="snap-section hw-accelerate">
+          <StatsBanner />
+        </div>
+        {/* New Interactive Sections */}
+        <div className="snap-section hw-accelerate">
+          <IndustryPortalGrid />
+        </div>
+        <div className="snap-section hw-accelerate">
+          <TrustShieldVisualizer />
+        </div>
+        <div className="snap-section hw-accelerate">
+          <LivingContractScroll onPreviewAgreement={() => setPdfOpen(true)} />
+        </div>
+        {/* Existing Sections */}
+        <div className="snap-section hw-accelerate">
+          <UseCases />
+        </div>
+        <div className="snap-section hw-accelerate">
+          <CaseStudies />
+        </div>
+        <div className="snap-section hw-accelerate">
+          <Testimonials />
+        </div>
+        <div className="snap-section hw-accelerate">
+          <FAQs />
+        </div>
+        <div className="snap-section hw-accelerate">
+          <RegulatoryBadgeStrip />
+        </div>
+        <div className="snap-section hw-accelerate">
+          <TrustSignals />
+        </div>
+        <div className="snap-section">
+          <ContactCTA onOpen={() => setContactOpen(true)} />
+        </div>
+        {/* Contact Modal Placeholder */}
+        {contactOpen && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40">
+            <div className="bg-white rounded-xl p-8 max-w-md w-full relative">
+              <button aria-label="Close contact form" className="absolute top-2 right-2 text-gray-500" onClick={() => setContactOpen(false)}>&times;</button>
+              <h3 className="text-xl font-bold mb-4 text-gray-900">Contact Legal Team</h3>
+              <form className="space-y-4">
+                <input className="w-full border rounded p-2" placeholder="Name" required />
+                <input className="w-full border rounded p-2" placeholder="Email" type="email" required />
+                <input className="w-full border rounded p-2" placeholder="Country" required />
+                <input className="w-full border rounded p-2" placeholder="Type of Transaction" required />
+                <input className="w-full border rounded p-2" placeholder="Schedule (optional)" />
+                <button type="submit" className="w-full bg-[#D4AF37] text-[#1C2A39] font-semibold rounded-lg py-2 mt-2">Submit</button>
+              </form>
+            </div>
           </div>
-          
-          <div className="bg-white rounded-lg shadow-lg p-6">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-4">🚀 Ready for Phase 2</h2>
-            <ul className="text-left space-y-2 text-gray-600">
-              <li>• Escrow FSM Core Engine</li>
-              <li>• Smart Contract Implementation</li>
-              <li>• Deal Creation & Management</li>
-              <li>• State Machine Transitions</li>
-              <li>• On-chain Event Handling</li>
-              <li>• Integration Testing</li>
-            </ul>
+        )}
+        {/* PDF Preview Modal Placeholder */}
+        {pdfOpen && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40">
+            <div className="bg-white rounded-xl p-8 max-w-2xl w-full relative">
+              <button aria-label="Close PDF preview" className="absolute top-2 right-2 text-gray-500" onClick={() => setPdfOpen(false)}>&times;</button>
+              <h3 className="text-xl font-bold mb-4 text-gray-900">Escrow Agreement Preview</h3>
+              <div className="h-96 flex items-center justify-center text-gray-400">PDF Viewer Placeholder</div>
+            </div>
           </div>
-        </div>
-
-        <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <a 
-            href="/login" 
-            className="inline-flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            <span className="mr-2">🔐</span>
-            Sign In
-          </a>
-          <a 
-            href="/signup" 
-            className="inline-flex items-center px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-          >
-            <span className="mr-2">📝</span>
-            Create Account
-          </a>
-        </div>
-
-        <div className="mt-8 text-sm text-gray-500">
-          <p>Built with Next.js, TypeScript, Tailwind CSS, Framer Motion, and Firebase</p>
-          <p className="mt-2">Follows strict AI governance rules and blueprint compliance</p>
-        </div>
-      </div>
-    </div>
+        )}
+        {/* Unified Auth Modal overlay */}
+        <AuthModal
+          open={authModalOpen}
+          onOpenChange={setAuthModalOpen}
+          initialTab="email"
+          initialMode="signup"
+        />
+      </Layout>
+    </FluidBackground>
   );
 } 

@@ -53,13 +53,13 @@ export {
   createUserOperation,
   validateUserOperation,
   paymentRelayer
-} from '../relayer';
+} from './relayer';
 
 export type {
   UserOperation,
   TransactionReceipt,
   BundlerResponse,
   RelayerConfig
-} from '../relayer';
+} from './relayer';
 
 export { moderateContent } from './moderateContent'; 

@@ -1,7 +1,23 @@
 import React from 'react';
 import { Story, Meta } from '@storybook/react';
 import { DeedTokenPanel } from './DeedTokenPanel';
-import { Property } from '@escrow/schemas';
+// import { Property } from '@escrow/schemas';
+
+// Temporary local type until schemas package is properly linked
+type Property = {
+  propertyId: string;
+  owner: string;
+  location: string;
+  coordinates: {
+    lat: number;
+    lng: number;
+  };
+  size: number;
+  valuation: number;
+  zoning: string;
+  documentUri: string;
+  verified: boolean;
+};
 
 export default {
   title: 'Adapters/Real Estate/DeedTokenPanel',

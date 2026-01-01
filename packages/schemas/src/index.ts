@@ -35,10 +35,14 @@ export const EscrowStateSchema = z.object({
 // Auth schemas
 export * from './emailOtpSchema';
 export * from './phoneOtpSchema';
+export * from './authSchemas';
 export * from './escrow';
 export * from './propertySchema';
 export * from './assaySchema';
 export * from './shipmentSchema';
+
+// Admin and audit schemas
+export * from './audit';
 
 // Dashboard schemas
 export * from './dashboard';

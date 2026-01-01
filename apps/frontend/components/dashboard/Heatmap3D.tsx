@@ -23,8 +23,8 @@ interface Heatmap3DProps {
   className?: string;
 }
 
-// 3D Heatmap Component
-const Heatmap3D: React.FC<{
+// 3D Heatmap Internal Component
+const Heatmap3DInternal: React.FC<{
   data: HeatmapData[];
   showAnimation: boolean;
   showLabels: boolean;
@@ -143,7 +143,9 @@ const Heatmap3D: React.FC<{
           <group key={index} position={[item.x * 2 - 5, yPosition, item.y * 0.8 - 2]}>
             {/* Block */}
             <mesh
-              ref={(el) => (blockRefs.current[index] = el)}
+              ref={(el) => {
+                blockRefs.current[index] = el;
+              }}
               onPointerOver={() => setHoveredIndex(index)}
               onPointerOut={() => setHoveredIndex(null)}
               position={[0, 0, 0]}
@@ -312,7 +314,7 @@ export const Heatmap3D: React.FC<Heatmap3DProps> = ({
         <pointLight position={[10, 10, 10]} intensity={0.8} />
         <pointLight position={[-10, -10, -10]} intensity={0.4} />
         
-        <Heatmap3D
+        <Heatmap3DInternal
           data={chartData}
           showAnimation={showAnimation}
           showLabels={showLabels}

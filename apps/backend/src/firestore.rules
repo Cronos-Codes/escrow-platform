@@ -45,6 +45,18 @@ service cloud.firestore {
       allow delete: if isAdmin();
     }
 
+    // OTP tokens - NO CLIENT ACCESS
+    // Only backend Firebase Functions can read/write OTP tokens
+    // This prevents any client from reading or manipulating OTP data
+    match /otpTokens/{tokenId} {
+      allow read, write: if false;
+    }
+
+    // Health check ping collection - write only from server
+    match /_health/{docId} {
+      allow read, write: if false;
+    }
+
     // Escrow deals
     match /deals/{dealId} {
       allow read: if isAuthenticated() && (
@@ -140,16 +152,33 @@ service cloud.firestore {
     
     match /oracleLogs/{logId} {
       allow read: if isAuthenticated();
-      allow create: if isAuthenticated();
+      // Restrict create to admin/system to prevent log pollution
+      allow create: if isAdmin();
       allow update: if isAdmin();
       allow delete: if isAdmin();
     }
 
-    // Audit Trails
+    // Audit Trails (immutable)
     match /auditLogs/{logId} {
-      allow read: if isAdmin();
+      allow read: if isAdmin() || hasAnyRole(['OPERATOR', 'ARBITER', 'SUPPORT']);
       allow create: if isAuthenticated();
-      allow update: if isAdmin();
+      allow update: if false; // Immutable
+      allow delete: if false; // Immutable
+    }
+
+    // Admin Action Queue (high-risk actions)
+    match /adminActionsQueue/{actionId} {
+      allow read: if isAdmin() || hasAnyRole(['OPERATOR']);
+      allow create: if isAuthenticated();
+      allow update: if isAdmin() || hasAnyRole(['OPERATOR']);
+      allow delete: if false; // Keep for audit trail
+    }
+
+    // Admin Users (extended user profiles)
+    match /adminUsers/{userId} {
+      allow read: if isAdmin() || hasAnyRole(['OPERATOR', 'ARBITER', 'SUPPORT']) || isOwner(userId);
+      allow create: if isAdmin();
+      allow update: if isAdmin() || hasAnyRole(['OPERATOR']) || isOwner(userId);
       allow delete: if isAdmin();
     }
 

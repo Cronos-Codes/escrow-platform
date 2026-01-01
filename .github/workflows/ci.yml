@@ -4,43 +4,42 @@ on:
   push:
     branches: [ main, develop ]
   pull_request:
-    branches: [ main, develop ]
+    branches: [ main ]
 
 jobs:
   test:
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        node-version: [18.x]
+
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v3
 
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
       with:
-        node-version: '18'
-        cache: 'pnpm'
-
-    - name: Setup pnpm
-      uses: pnpm/action-setup@v2
-      with:
-        version: 8
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
 
     - name: Install dependencies
-      run: pnpm install --frozen-lockfile
+      run: npm ci
 
     - name: Run linting
-      run: pnpm lint
+      run: npm run lint
 
     - name: Type check
-      run: pnpm type-check
+      run: npm run type-check
 
     - name: Run tests
-      run: pnpm test --coverage
+      run: npm run test --coverage
 
     - name: Run smart contract tests
-      run: pnpm contracts:test
+      run: npm run contracts:test
 
     - name: Build all apps
-      run: pnpm build
+      run: npm run build
 
     - name: Upload coverage reports
       uses: codecov/codecov-action@v3

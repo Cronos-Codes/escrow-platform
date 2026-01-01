@@ -1,0 +1,38 @@
+{
+  "name": "@escrow/backend",
+  "version": "1.0.0",
+  "description": "Firebase Functions backend for Gold Escrow Platform",
+  "private": true,
+  "scripts": {
+    "dev": "firebase emulators:start --only functions --project demo-project",
+    "build": "tsc",
+    "serve": "npm run build && firebase emulators:start --only functions",
+    "shell": "npm run build && firebase functions:shell",
+    "start": "npm run shell",
+    "deploy": "firebase deploy --only functions",
+    "logs": "firebase functions:log",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
+  },
+  "engines": {
+    "node": "18"
+  },
+  "main": "lib/index.js",
+  "dependencies": {
+    "firebase-admin": "^12.0.0",
+    "firebase-functions": "^4.5.0",
+    "ethers": "^6.8.1",
+    "@escrow/core": "*",
+    "@escrow/schemas": "*",
+    "@escrow/utils": "*"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.0.0",
+    "jest": "^29.7.0",
+    "@types/jest": "^29.5.0",
+    "ts-jest": "^29.1.0",
+    "firebase-functions-test": "^3.1.0"
+  }
+} 

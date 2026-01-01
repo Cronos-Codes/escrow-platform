@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useAdminOverride } from '../../../hooks/useAdminOverride';
+import { useAdminOverride } from '../../hooks/useAdminOverride';
 import { useAuth } from '@escrow/auth';
 import { Button } from '@escrow/ui';
 import { 

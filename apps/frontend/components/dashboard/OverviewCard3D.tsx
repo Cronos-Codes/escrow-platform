@@ -3,6 +3,7 @@ import { motion, useMotionValue, useTransform, useSpring } from 'framer-motion';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Text, Box, useGLTF } from '@react-three/drei';
 import * as THREE from 'three';
+// import { t } from 'next-i18next'; // Commented out - not needed for this component
 
 interface OverviewCard3DProps {
   icon: string;
@@ -16,6 +17,7 @@ interface OverviewCard3DProps {
   color?: string;
   onClick?: () => void;
   className?: string;
+  loading?: boolean;
 }
 
 // 3D Card Component
@@ -170,7 +172,20 @@ export const OverviewCard3D: React.FC<OverviewCard3DProps> = ({
   color = '#3B82F6',
   onClick,
   className = '',
+  loading = false,
 }) => {
+  if (loading) {
+    return (
+      <div className="animate-pulse p-6 bg-white rounded-xl shadow border border-gray-200 min-h-[200px] flex flex-col gap-4" aria-label="Loading card skeleton" role="status" aria-live="polite">
+        <div className="h-6 w-1/3 bg-gray-200 rounded" />
+        <div className="h-4 w-1/2 bg-gray-200 rounded" />
+        <div className="h-4 w-1/4 bg-gray-200 rounded" />
+        <div className="h-8 w-full bg-gray-100 rounded" />
+        <div className="h-4 w-1/3 bg-gray-200 rounded" />
+        <div className="h-10 w-full bg-gray-100 rounded" />
+      </div>
+    );
+  }
   const cardRef = useRef<HTMLDivElement>(null);
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);

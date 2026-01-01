@@ -1,5 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { Property } from '@escrow/schemas';
+// import { Property } from '@escrow/schemas';
+
+// Temporary local type until schemas package is properly linked
+type Property = {
+  propertyId: string;
+  owner: string;
+  location: string;
+  coordinates: {
+    lat: number;
+    lng: number;
+  };
+  size: number;
+  valuation: number;
+  zoning: string;
+  documentUri: string;
+  verified: boolean;
+};
 
 interface DeedTokenPanelProps {
   dealId: string;

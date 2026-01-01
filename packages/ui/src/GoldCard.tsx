@@ -19,7 +19,7 @@ const GoldCard: React.FC<GoldCardProps> = ({
   disabled = false,
   loading = false,
 }) => {
-  const { theme } = useTheme();
+  const theme = useTheme();
 
   const baseClasses = `
     relative overflow-hidden rounded-xl border
@@ -32,28 +32,19 @@ const GoldCard: React.FC<GoldCardProps> = ({
       bg-gradient-to-br from-white/10 to-white/5
       border-gold/30 shadow-lg
       backdrop-blur-md
-      ${theme === 'dark' 
-        ? 'bg-black/20 border-gold/20' 
-        : 'bg-white/80 border-gold/40'
-      }
+      bg-white/80 border-gold/40
     `,
     elevated: `
       bg-gradient-to-br from-gold/10 to-gold/5
       border-gold/50 shadow-xl
       backdrop-blur-lg
-      ${theme === 'dark' 
-        ? 'bg-black/30 border-gold/30 shadow-gold/20' 
-        : 'bg-white/90 border-gold/50 shadow-gold/10'
-      }
+      bg-white/90 border-gold/50 shadow-gold/10
     `,
     glass: `
       bg-gradient-to-br from-white/20 to-white/10
       border-white/20 shadow-2xl
       backdrop-blur-xl
-      ${theme === 'dark' 
-        ? 'bg-black/40 border-gold/10' 
-        : 'bg-white/60 border-gold/20'
-      }
+      bg-white/60 border-gold/20
     `,
   };
 

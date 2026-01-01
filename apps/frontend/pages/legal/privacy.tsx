@@ -1,9 +1,10 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import Layout from '../../components/shared/Layout';
 
 const PrivacyPolicyPage: React.FC = () => {
   return (
-    <div className="min-h-screen bg-gray-50 py-12">
+    <Layout>
       <div className="max-w-4xl mx-auto px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -14,10 +15,10 @@ const PrivacyPolicyPage: React.FC = () => {
           <h1 className="text-3xl font-bold text-gray-900 mb-6">
             Privacy Policy
           </h1>
-          
+
           <div className="prose prose-lg max-w-none">
             <p className="text-gray-600 mb-6">
-              <strong>Last updated:</strong> {new Date().toLocaleDateString()}
+              <strong>Last updated:</strong> December 2024
             </p>
 
             <section className="mb-8">
@@ -98,65 +99,33 @@ const PrivacyPolicyPage: React.FC = () => {
                 <li>Access and review your personal information</li>
                 <li>Correct inaccurate or incomplete information</li>
                 <li>Request deletion of your personal information</li>
-                <li>Object to or restrict certain processing activities</li>
+                <li>Object to processing of your personal information</li>
+                <li>Request restriction of processing</li>
                 <li>Data portability</li>
-                <li>Withdraw consent where applicable</li>
+                <li>Withdraw consent where processing is based on consent</li>
               </ul>
             </section>
 
             <section className="mb-8">
               <h2 className="text-2xl font-semibold text-gray-900 mb-4">
-                7. Cookies and Tracking
-              </h2>
-              <p className="text-gray-700 mb-4">
-                We use cookies and similar technologies to enhance your experience, analyze usage patterns, and provide personalized content. You can control cookie settings through your browser preferences.
-              </p>
-            </section>
-
-            <section className="mb-8">
-              <h2 className="text-2xl font-semibold text-gray-900 mb-4">
-                8. International Transfers
-              </h2>
-              <p className="text-gray-700 mb-4">
-                Your information may be transferred to and processed in countries other than your own. We ensure appropriate safeguards are in place to protect your information in accordance with this policy.
-              </p>
-            </section>
-
-            <section className="mb-8">
-              <h2 className="text-2xl font-semibold text-gray-900 mb-4">
-                9. Children's Privacy
-              </h2>
-              <p className="text-gray-700 mb-4">
-                Our services are not intended for children under 18 years of age. We do not knowingly collect personal information from children under 18.
-              </p>
-            </section>
-
-            <section className="mb-8">
-              <h2 className="text-2xl font-semibold text-gray-900 mb-4">
-                10. Changes to This Policy
-              </h2>
-              <p className="text-gray-700 mb-4">
-                We may update this Privacy Policy from time to time. We will notify you of any material changes by posting the new policy on our website and updating the "Last updated" date.
-              </p>
-            </section>
-
-            <section className="mb-8">
-              <h2 className="text-2xl font-semibold text-gray-900 mb-4">
-                11. Contact Us
+                7. Contact Us
               </h2>
               <p className="text-gray-700 mb-4">
                 If you have any questions about this Privacy Policy or our data practices, please contact us at:
               </p>
-              <p className="text-gray-700">
-                Email: privacy@escrowplatform.com<br />
-                Address: [Your Business Address]<br />
-                Data Protection Officer: dpo@escrowplatform.com
-              </p>
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <p className="text-gray-700">
+                  <strong>Email:</strong> privacy@goldescrow.com<br />
+                  <strong>Address:</strong> Gold Escrow Platform<br />
+                  Dubai International Financial Centre<br />
+                  Dubai, United Arab Emirates
+                </p>
+              </div>
             </section>
           </div>
         </motion.div>
       </div>
-    </div>
+    </Layout>
   );
 };
 

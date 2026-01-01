@@ -151,9 +151,7 @@ const Chart3D: React.FC<{
       )}
 
       {/* Line */}
-      <line ref={lineRef} geometry={lineGeometry}>
-        <lineBasicMaterial color={color} linewidth={3} />
-      </line>
+      <primitive ref={lineRef} object={new THREE.Line(lineGeometry, new THREE.LineBasicMaterial({ color, linewidth: 3 }))} />
 
       {/* Particles */}
       {showParticles && (

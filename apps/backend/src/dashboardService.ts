@@ -588,4 +588,196 @@ export const getSystemPerformanceMetrics = functions.https.onCall(async (data, c
     
     return createResponse(false, undefined, error instanceof Error ? error.message : 'Internal server error');
   }
-}); 
+});
+
+// User-specific dashboard metrics
+export const getUserDashboardMetrics = functions.https.onCall(async (data, context) => {
+  const startTime = Date.now();
+  
+  try {
+    // Validate authentication
+    if (!context.auth) {
+      return createResponse(false, undefined, 'User not authenticated');
+    }
+
+    const userId = context.auth.uid;
+    const validation = TimeframeSchema.safeParse(data.timeframe);
+    if (!validation.success) {
+      return createResponse(false, undefined, 'Invalid timeframe format');
+    }
+
+    const timeframe = validation.data;
+    const { start, end } = getTimeRange(timeframe);
+
+    // Fetch user's escrows (as buyer)
+    const buyerEscrowsSnapshot = await db.collection('escrows')
+      .where('parties.buyer', '==', userId)
+      .where('createdAt', '>=', start)
+      .where('createdAt', '<=', end)
+      .get();
+
+    // Fetch user's escrows (as seller)
+    const sellerEscrowsSnapshot = await db.collection('escrows')
+      .where('parties.seller', '==', userId)
+      .where('createdAt', '>=', start)
+      .where('createdAt', '<=', end)
+      .get();
+
+    const allEscrows = [
+      ...buyerEscrowsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data(), role: 'buyer' })),
+      ...sellerEscrowsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data(), role: 'seller' }))
+    ];
+
+    // Calculate escrow metrics
+    const activeEscrows = allEscrows.filter(e => ['funded', 'approved'].includes(e.status));
+    const completedEscrows = allEscrows.filter(e => ['released', 'resolved'].includes(e.status));
+    const totalValue = allEscrows.reduce((sum, e) => sum + parseFloat(e.amount || '0'), 0);
+    const avgDealSize = allEscrows.length > 0 ? totalValue / allEscrows.length : 0;
+
+    // Fetch user's transactions
+    const transactionsSnapshot = await db.collection('transactions')
+      .where('userId', '==', userId)
+      .where('timestamp', '>=', start)
+      .where('timestamp', '<=', end)
+      .get();
+
+    const transactions = transactionsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const successfulTransactions = transactions.filter(t => t.status === 'completed').length;
+    const successRate = transactions.length > 0 ? (successfulTransactions / transactions.length) * 100 : 0;
+
+    // Fetch user's disputes
+    const disputesSnapshot = await db.collection('disputes')
+      .where('parties', 'array-contains', userId)
+      .where('createdAt', '>=', start)
+      .where('createdAt', '<=', end)
+      .get();
+
+    const disputes = disputesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const openDisputes = disputes.filter(d => d.status !== 'resolved').length;
+    const resolvedDisputes = disputes.filter(d => d.status === 'resolved').length;
+
+    // Get previous period for comparison
+    const previousPeriod = end - start;
+    const previousStart = start - previousPeriod;
+    
+    const previousEscrowsSnapshot = await db.collection('escrows')
+      .where('parties.buyer', '==', userId)
+      .where('createdAt', '>=', previousStart)
+      .where('createdAt', '<', start)
+      .get();
+
+    const previousEscrows = previousEscrowsSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    const previousValue = previousEscrows.reduce((sum, e) => sum + parseFloat(e.amount || '0'), 0);
+    const valueChange = calculateChange(totalValue, previousValue);
+
+    const metrics = {
+      escrows: {
+        total: allEscrows.length,
+        active: activeEscrows.length,
+        completed: completedEscrows.length,
+        totalValue,
+        avgDealSize,
+        change: valueChange,
+        trend: getTrend(valueChange),
+      },
+      transactions: {
+        total: transactions.length,
+        successful: successfulTransactions,
+        successRate,
+      },
+      disputes: {
+        open: openDisputes,
+        resolved: resolvedDisputes,
+        total: disputes.length,
+      },
+      recentActivity: {
+        escrows: allEscrows.slice(0, 5).map(e => ({
+          id: e.id,
+          title: e.title || `Deal ${e.id.slice(0, 8)}`,
+          amount: e.amount,
+          status: e.status,
+          role: e.role,
+          createdAt: e.createdAt,
+        })),
+        transactions: transactions.slice(0, 10).map(t => ({
+          id: t.id,
+          type: t.type,
+          amount: t.amount,
+          status: t.status,
+          timestamp: t.timestamp,
+        })),
+      },
+    };
+
+    const responseTime = Date.now() - startTime;
+    console.log(`getUserDashboardMetrics completed in ${responseTime}ms for user ${userId}`);
+
+    return createResponse(true, metrics);
+
+  } catch (error) {
+    const responseTime = Date.now() - startTime;
+    console.error(`getUserDashboardMetrics failed in ${responseTime}ms:`, error);
+    
+    return createResponse(false, undefined, error instanceof Error ? error.message : 'Internal server error');
+  }
+});
+
+// Get user wallet summary
+export const getUserWalletSummary = functions.https.onCall(async (data, context) => {
+  const startTime = Date.now();
+  
+  try {
+    if (!context.auth) {
+      return createResponse(false, undefined, 'User not authenticated');
+    }
+
+    const userId = context.auth.uid;
+
+    // Fetch user wallet data
+    const walletDoc = await db.collection('wallets').doc(userId).get();
+    
+    if (!walletDoc.exists) {
+      return createResponse(false, undefined, 'Wallet not found');
+    }
+
+    const walletData = walletDoc.data();
+
+    // Calculate 24h change
+    const yesterday = Date.now() - (24 * 60 * 60 * 1000);
+    const historySnapshot = await db.collection('wallet_history')
+      .where('userId', '==', userId)
+      .where('timestamp', '>=', yesterday)
+      .orderBy('timestamp', 'asc')
+      .limit(1)
+      .get();
+
+    let change24h = 0;
+    if (!historySnapshot.empty) {
+      const previousBalance = historySnapshot.docs[0].data().totalBalance || 0;
+      const currentBalance = walletData?.totalBalance || 0;
+      change24h = calculateChange(currentBalance, previousBalance);
+    }
+
+    const summary = {
+      totalBalance: walletData?.totalBalance || 0,
+      cryptoBalance: walletData?.cryptoBalance || 0,
+      fiatBalance: walletData?.fiatBalance || 0,
+      goldValue: walletData?.goldValue || 0,
+      currency: walletData?.currency || 'USD',
+      change24h,
+      trend: getTrend(change24h),
+      lastUpdated: Date.now(),
+    };
+
+    const responseTime = Date.now() - startTime;
+    console.log(`getUserWalletSummary completed in ${responseTime}ms for user ${userId}`);
+
+    return createResponse(true, summary);
+
+  } catch (error) {
+    const responseTime = Date.now() - startTime;
+    console.error(`getUserWalletSummary failed in ${responseTime}ms:`, error);
+    
+    return createResponse(false, undefined, error instanceof Error ? error.message : 'Internal server error');
+  }
+});
